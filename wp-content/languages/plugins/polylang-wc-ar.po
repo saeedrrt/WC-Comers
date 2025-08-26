@@ -1,0 +1,408 @@
+# Translation of WP-Syntex - Polylang for WooCommerce in Arabic
+# This file is distributed under the same license as the WP-Syntex - Polylang for WooCommerce package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2023-11-22 14:35:09+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+"X-Generator: GlotPress/4.0.0-alpha.3\n"
+"Language: ar\n"
+"Project-Id-Version: WP-Syntex - Polylang for WooCommerce\n"
+
+#: admin/admin-site-health.php:35
+msgid "All WooCommerce pages are translated."
+msgstr "تمت ترجمة جميع صفحات ووكومرس WooCommerce."
+
+#: admin/view-wizard-step-wc-pages.php:25
+msgid "Before creating these pages in each language, if available, we will try to install the plugin translations."
+msgstr "قبل إنشاء هذه الصفحات في كل لغة ، إذا كانت متوفرة ، سنحاول تنصيب ترجمات الإضافة."
+
+#: admin/view-wizard-step-wc-pages.php:67
+msgid "For your multilingual shop to work correctly, we need to ensure that all the WooCommerce pages are created and translated."
+msgstr "لكي يعمل متجرك متعدد اللغات بشكل صحيح ، نحتاج إلى التأكد من إنشاء وترجمة جميع صفحات ووكومرس WooCommerce."
+
+#: admin/view-wizard-step-wc-pages.php:60
+msgid "Finally, we are going to ensure that all the WooCommerce pages are created and translated."
+msgstr "أخيرًا ، سوف نتأكد من إنشاء وترجمة جميع صفحات ووكومرس WooCommerce."
+
+#: admin/view-wizard-step-wc-pages.php:34
+msgid "Missing plugin translations"
+msgstr "ترجمات الإضافة مفقودة"
+
+#: admin/view-wizard-step-wc-pages.php:27
+msgid "All the WooCommerce pages have already been created and translated, but some plugin translations have not been installed yet. We will try to install the plugin translations, if available."
+msgstr "تم بالفعل إنشاء وترجمة جميع صفحات ووكومرس WooCommerce ، ولكن لم يتم تنصيب بعض ترجمات الإضافة بعد. سنحاول تنصيب ترجمات الإضافة ، إن كانت متوفرة."
+
+#: admin/view-wizard-step-wc-pages.php:20
+msgid "For your multilingual shop to work correctly, all the WooCommerce pages must be created and translated."
+msgstr "لكي يعمل متجرك متعدد اللغات بشكل صحيح ، يجب إنشاء وترجمة جميع صفحات ووكومرس WooCommerce ."
+
+#: admin/view-wizard-step-wc-pages.php:15
+msgid "WooCommerce pages"
+msgstr "صفحات ووكومرس WooCommerce"
+
+#: admin/wizard.php:100
+msgid "Update translations"
+msgstr "تحديث الترجمات"
+
+#. Author of the plugin
+msgid "WP SYNTEX"
+msgstr "WP SYNTEX"
+
+#: admin/admin-wc-install.php:288
+msgctxt "Default category slug"
+msgid "Uncategorized"
+msgstr "غير مصنف"
+
+#: admin/admin-wc-install.php:224
+msgid "All missing WooCommerce pages successfully installed"
+msgstr "تم تنصيب جميع صفحات ووكومرس WooCommerce المفقودة بنجاح"
+
+#: admin/admin-wc-install.php:185
+msgctxt "Page title"
+msgid "My account"
+msgstr "حسابي"
+
+#: admin/admin-wc-install.php:184
+msgctxt "Page slug"
+msgid "my-account"
+msgstr "حسابي"
+
+#: admin/admin-wc-install.php:180
+msgctxt "Page title"
+msgid "Checkout"
+msgstr "عملية إنهاء الطلب"
+
+#: admin/admin-wc-install.php:179
+msgctxt "Page slug"
+msgid "checkout"
+msgstr "عملية إنهاء الطلب"
+
+#: admin/admin-wc-install.php:175
+msgctxt "Page title"
+msgid "Cart"
+msgstr "السلة "
+
+#: admin/admin-wc-install.php:174
+msgctxt "Page slug"
+msgid "cart"
+msgstr "السلة "
+
+#: admin/admin-wc-install.php:170
+msgctxt "Page title"
+msgid "Shop"
+msgstr "المتجر"
+
+#: admin/admin-wc-install.php:169
+msgctxt "Page slug"
+msgid "shop"
+msgstr "المتجر"
+
+#: admin/admin-wc-install.php:119
+msgid "This tool will install all the missing WooCommerce pages. Pages already defined and set up will not be replaced."
+msgstr "ستقوم هذه الأداة بتنصيب جميع صفحات ووكومرس WooCommerce المفقودة. لن يتم استبدال الصفحات التي تم تحديدها وإعدادها سابقا."
+
+#: admin/admin-wc-install.php:118
+msgid "Note:"
+msgstr "ملاحظة:"
+
+#: admin/admin-wc-install.php:115
+msgid "Install pages"
+msgstr "تنصيب الصفحات"
+
+#: admin/admin-wc-install.php:114
+msgid "Install WooCommerce pages"
+msgstr "تنصيب صفحات الوو كوميرس (WooCommerce)"
+
+#: admin/admin-wc-install.php:94
+msgid "Terms and Conditions Page"
+msgstr "صفحة الشروط والأحكام"
+
+#: admin/admin-wc-install.php:90
+msgid "My Account Page"
+msgstr "صفحة حسابي"
+
+#: admin/admin-wc-install.php:86
+msgid "Checkout Page"
+msgstr "صفحة إتمام طلب"
+
+#: admin/admin-wc-install.php:82
+msgid "Cart Page"
+msgstr "صفحة السلة"
+
+#: admin/admin-wc-install.php:78
+msgid "Shop Page"
+msgstr "صفحة التسوق"
+
+#: admin/admin-menus.php:126
+msgid "Lost password"
+msgstr "كلمة المرور المفقودة"
+
+#: admin/admin-menus.php:66
+msgid "Add to menu"
+msgstr "أضف الى القائمة"
+
+#: admin/admin-menus.php:63
+msgid "Select all"
+msgstr "تحديد الكل"
+
+#: admin/admin-menus.php:43
+msgid "WooCommerce endpoints"
+msgstr "نقاط الوو كوميرس (WooCommerce) النهائية"
+
+#. translators: %s comma separated list of native languages names
+#: admin/admin-status-reports.php:116
+msgid "The shortcode is missing for the translation in %s"
+msgid_plural "The shortcode is missing for the translations in %s"
+msgstr[0] "الكود القصير مفقود للترجمة في %s"
+msgstr[1] "الكود القصير مفقود للترجمة في %s"
+msgstr[2] "الكود القصير مفقود للترجمتان في %s"
+msgstr[3] "الكود القصير مفقود للترجمات في  %s"
+msgstr[4] "الكود القصير مفقود للترجمات في  %s"
+msgstr[5] "الكود القصير مفقود للترجمات في  %s"
+
+#. translators: %s comma separated list of native languages names
+#: admin/admin-status-reports.php:97
+msgid "Missing translation: %s"
+msgid_plural "Missing translations: %s"
+msgstr[0] "الترجمة المفقودة: %s"
+msgstr[1] "الترجمة المفقودة: %s"
+msgstr[2] "الترجمات المفقودة: %s"
+msgstr[3] "الترجمات المفقودة: %s"
+msgstr[4] "الترجمات المفقودة: %s"
+msgstr[5] "الترجمات المفقودة: %s"
+
+#: admin/admin-status-reports.php:83
+msgid "Page not set"
+msgstr "لم يتم تعيين الصفحة"
+
+#: admin/admin-status-reports.php:63
+msgid "The status of your WooCommerce shop's “My Account” page translations."
+msgstr "حالة ترجمات صفحة \"حسابي\" لمتجر الووكوميرس (WooCommerce)."
+
+#: admin/admin-status-reports.php:60
+msgctxt "Page setting"
+msgid "My account"
+msgstr "حسابي"
+
+#: admin/admin-status-reports.php:58
+msgid "The status of your WooCommerce shop's checkout page translations."
+msgstr "حالة ترجمات صفحة إنهاء الطلب الخاصة بمتجر الوو كوميرس (WooCommerce)."
+
+#: admin/admin-status-reports.php:55
+msgctxt "Page setting"
+msgid "Checkout"
+msgstr "عملية إنهاء الطلب"
+
+#: admin/admin-status-reports.php:53
+msgid "The status of your WooCommerce shop's cart translations."
+msgstr "حالة ترجمات سلة التسوق الخاصة بك في متجر الوو كوميرس (WooCommerce)."
+
+#: admin/admin-status-reports.php:50
+msgctxt "Page setting"
+msgid "Cart"
+msgstr "السلة "
+
+#: admin/admin-status-reports.php:48
+msgid "The status of your WooCommerce shop's homepage translations."
+msgstr "حالة ترجمات الصفحة الرئيسية لمتجر الووكوميرس (WooCommerce)."
+
+#: admin/admin-status-reports.php:45
+msgctxt "Page setting"
+msgid "Shop base"
+msgstr "قاعدة المتجر"
+
+#. translators: %s is a page name
+#: admin/view-status-report.php:24
+msgid "Edit %s page"
+msgstr "تحرير صفحة %s "
+
+#: admin/admin-site-health.php:34 admin/view-status-report.php:15
+#: admin/view-wizard-status-report.php:15
+msgid "WooCommerce pages translations"
+msgstr "ترجمة صفحات الوو كوميرس (WooCommerce)"
+
+#. translators: %s contains the name of the original product.
+#: admin/admin-product-duplicate.php:88
+msgid "%s (Copy)"
+msgstr "%s (نسخ)"
+
+#. translators: %1$s and %2$s are plugin version numbers, %3$s is the plugin
+#. name (Polylang or Polylang Pro)
+#: polylang-wc.php:411
+msgid "You are using %3$s %1$s. Polylang for WooCommerce requires at least %3$s %2$s."
+msgstr "أنت تستخدم %3$s %1$s. يتطلب Polylang لـلوو كوميرس (WooCommerce) على الأقل %3$s %2$s."
+
+#. translators: %s is the plugin name (Polylang or Polylang Pro)
+#: polylang-wc.php:404
+msgid "Polylang for WooCommerce has been deactivated because you are using an old version of %s."
+msgstr "تم تعطيل Polylang للوو كوميرس (WooCommerce) لأنك تستخدم نسخة قديمة من %s."
+
+#: plugins/wcfd.php:85 plugins/wcfd.php:108
+msgid "Placeholder"
+msgstr "نص مؤقت"
+
+#: plugins/bookings.php:773
+msgid "night"
+msgid_plural "nights"
+msgstr[0] "ليل"
+msgstr[1] "ليل"
+msgstr[2] "ليلتين"
+msgstr[3] "ليالي"
+msgstr[4] "ليالي"
+msgstr[5] "ليالي"
+
+#: plugins/bookings.php:770
+msgid "minute"
+msgid_plural "minutes"
+msgstr[0] "دقيقة"
+msgstr[1] "دقيقة"
+msgstr[2] "دقيقتين"
+msgstr[3] "دقائق"
+msgstr[4] "دقائق"
+msgstr[5] "دقائق"
+
+#: plugins/bookings.php:767
+msgid "hour"
+msgid_plural "hours"
+msgstr[0] "ساعة"
+msgstr[1] "ساعة"
+msgstr[2] "ساعتين"
+msgstr[3] "ساعات"
+msgstr[4] "ساعات"
+msgstr[5] "ساعات"
+
+#: plugins/bookings.php:763
+msgid "week"
+msgid_plural "weeks"
+msgstr[0] "اسبوع"
+msgstr[1] "اسبوع"
+msgstr[2] "أسبوعين"
+msgstr[3] "أسابيع"
+msgstr[4] "أسابيع"
+msgstr[5] "أسابيع"
+
+#: plugins/bookings.php:761
+msgid "day"
+msgid_plural "days"
+msgstr[0] "يوم"
+msgstr[1] "يوم"
+msgstr[2] "يومان"
+msgstr[3] "أيام"
+msgstr[4] "أيام"
+msgstr[5] "أيام"
+
+#: plugins/bookings.php:757
+msgid "month"
+msgid_plural "months"
+msgstr[0] "شهر"
+msgstr[1] "شهر"
+msgstr[2] "شهرين"
+msgstr[3] "شهور"
+msgstr[4] "شهور"
+msgstr[5] "شهور"
+
+#: plugins/subscriptions.php:41
+msgid "Switch Button Text"
+msgstr "نص الزر للتبديل"
+
+#: plugins/subscriptions.php:40
+msgid "Place Order Button Text"
+msgstr "نص زر تقديم الطلب"
+
+#: plugins/subscriptions.php:39
+msgid "Add to Cart Button Text"
+msgstr "نص زر أضف إلى السلة"
+
+#: plugins/table-rate-shipping.php:43 plugins/wcfd.php:81 plugins/wcfd.php:104
+msgid "Label"
+msgstr "التسمية"
+
+#. translators: %s is a link to the Stripe documentation
+#: plugins/stripe.php:66
+msgid "TEST MODE ENABLED. In test mode, you can use the card number 4242424242424242 with any CVC and a valid expiration date or check the documentation \"<a href=\"%s\">Testing Stripe</a>\" for more card numbers."
+msgstr "تم تفعيل وضع الاختبار. في وضع الاختبار ، يمكنك استخدام رقم البطاقة 4242424242424242 مع أي CVC وتاريخ انتهاء الصلاحية صالح أو تحقق من الوثائق المساعدة \"<a href=\"%s\">اختبار Stripe </a>\" لمزيد من أرقام البطاقات."
+
+#: include/strings.php:228
+msgid "Tax name"
+msgstr "الاسم الضريبي"
+
+#: include/strings.php:222 include/strings.php:265
+#: tests/phpunit/tests/test-strings.php:121
+msgid "Attribute"
+msgstr "الخاصية"
+
+#: include/strings.php:191 include/strings.php:256
+msgid "Bank name"
+msgstr "اسم البنك"
+
+#: include/strings.php:190 include/strings.php:256
+msgid "Account name"
+msgstr "إسم الحساب"
+
+#: include/strings.php:62
+msgid "Terms and conditions"
+msgstr "الأحكام والشروط"
+
+#: include/strings.php:61
+msgid "Checkout privacy policy"
+msgstr "سياسة خصوصية إتمام الطلب"
+
+#: include/strings.php:60
+msgid "Registration privacy policy"
+msgstr "سياسة خصوصية التسجيل"
+
+#: include/strings.php:59
+msgid "Decimal separator"
+msgstr "الفاصل العشري"
+
+#: include/strings.php:58
+msgid "Thousand separator"
+msgstr "فاصل الآلاف"
+
+#: include/strings.php:57 include/strings.php:260
+#: tests/phpunit/tests/test-strings.php:108
+#: tests/phpunit/tests/test-strings.php:109
+#: tests/phpunit/tests/test-strings.php:110
+#: tests/phpunit/tests/test-strings.php:111
+#: tests/phpunit/tests/test-strings.php:113
+#: tests/phpunit/tests/test-strings.php:116
+msgid "Currency position"
+msgstr "موضع العملة"
+
+#: include/strings.php:55 tests/phpunit/tests/test-strings.php:104
+msgid "Store notice text"
+msgstr "نص إشعار المتجر"
+
+#: include/strings.php:54 tests/phpunit/tests/test-strings.php:100
+msgid "Footer text"
+msgstr "نص التذييل"
+
+#: include/export.php:38 include/import.php:58 include/import.php:83
+msgid "Translation group"
+msgstr "مجموعة الترجمة"
+
+#: admin/admin-orders.php:61 admin/admin-orders.php:97
+#: admin/admin-orders.php:135 include/export.php:37 include/import.php:57
+#: include/import.php:82 plugins/subscriptions.php:224
+msgid "Language"
+msgstr "اللغة"
+
+#: include/xdata-session-manager.php:68
+msgid "An error has occurred."
+msgstr "لقد حدث خطأ."
+
+#. Description of the plugin
+msgid "Adds multilingual capability to WooCommerce"
+msgstr "يضيف قدرة تعدد اللغات إلى الوو كوميرس (WooCommerce)"
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+msgid "https://polylang.pro"
+msgstr "https://polylang.pro"
+
+#. Plugin Name of the plugin
+msgid "Polylang for WooCommerce"
+msgstr "Polylang لـلوو كوميرس (WooCommerce)"
