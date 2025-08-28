@@ -36,7 +36,7 @@ $lango = pll_current_language();
                         <div class="box-image_content">
                             <h2 class="title">
                             
-                                <?php the_title(); ?>
+                                <?= pll_current_language() == 'ar' ? the_field('arabic_title') : the_title(); ?>
                               
                             </h2>
                           

@@ -31,7 +31,7 @@ $lango = pll_current_language();
                         <!-- item 1 -->
                         <div class="swiper-slide">
                             <div class="article-blog type-space-2 hover-img4 wow fadeInLeft">
-                                <a href="blog-detail.html" class="entry_image img-style4">
+                                <a href="<?php the_permalink(); ?>" class="entry_image img-style4">
                                     <img src="<?php echo $image_url; ?>" data-src="<?php echo $image_url; ?>" alt="Blog"
                                 class="lazyload aspect-ratio-0">
                         </a>

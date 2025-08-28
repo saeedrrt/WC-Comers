@@ -38,10 +38,11 @@ Nicolas Gallagher and Jonathan Neal https://necolas.github.io/normalize.css/
 
 a.wishlist_products_counter.top_wishlist-heart-plus.no-txt, span.wishlist_products_counter.top_wishlist-heart-plus.no-txt {
     position: relative;
-    width: 40px;
-    height: 48px;
+    width: 56px;
+    height: 50px;
     vertical-align: sub;
 }
+
 
 .noUi-handle {
     display: none;
@@ -88,8 +89,12 @@ a.wishlist_products_counter.top_wishlist-heart-plus.no-txt, span.wishlist_produc
     justify-content: center;
 }
 
+.tinv-wishlist .tinvwl_add_to_wishlist_button.tinvwl-icon-heart.no-txt:before {
+    color: #FFF;
+}
+
 .tinv-wishlist .tinvwl_add_to_wishlist_button.tinvwl-icon-heart.no-txt {
-    background: #FFF;
+    background: #000;
     padding: 22px;
     border-radius: 50%;
 }
@@ -608,6 +613,10 @@ a.wishlist_products_counter.top_wishlist-heart-plus.no-txt, span.wishlist_produc
     font-size: 64px;
     color: #ccc;
     margin-bottom: 20px;
+}
+
+.page-template-form-checkout .tf-payment-body {
+    display: none;
 }
 
 .no-results h2 {

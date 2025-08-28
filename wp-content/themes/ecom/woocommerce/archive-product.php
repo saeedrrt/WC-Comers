@@ -133,16 +133,20 @@ $lango = pll_current_language();
                         <div class="canvas-body">
 
                             <div id="category" class="collapse show">
-    <ul class="collapse-body filter-group-check group-category">
-        <?php
+                                <ul class="collapse-body filter-group-check group-category">
+                                    <?php
                                     // جلب جميع التصنيفات التي لها منتجات
                                     $categories = get_terms(array(
                                         'taxonomy' => 'product_cat',
                                         'hide_empty' => true,
                                     ));
 
-                                    // الحصول على التصنيف الحالي بطريقة محسنة
-                                    $current_cat_slug = get_current_category_slug();
+                                    // الكاتيجوري الحالي لو إحنا في أرشيف تصنيف
+                                    $current_cat_slug = '';
+                                    if (is_tax('product_cat')) {
+                                        $current_term = get_queried_object();
+                                        $current_cat_slug = $current_term->slug;
+                                    }
 
                                     if (!empty($categories) && !is_wp_error($categories)): ?>
                                         <ul class="filter-list">
@@ -167,9 +171,9 @@ $lango = pll_current_language();
                                                 $active_class = ($cat->slug === $current_cat_slug) ? 'active' : '';
                                                 ?>
                                                 <li class="list-item <?php echo esc_attr($active_class); ?>">
-                                                    <a href="#" class="link h6 filter-cat <?php echo esc_attr($active_class); ?>"
-                                                        data-cat="<?php echo esc_attr($cat->slug); ?>" data-cat-name="<?php echo esc_attr($cat->name); ?>"
-                                                        data-cat-id="<?php echo esc_attr($cat->term_id); ?>">
+                                                    <a href="#"
+                                                        class="link h6 filter-cat <?php echo esc_attr($active_class); ?>"
+                                                        data-cat="<?php echo esc_attr($cat->slug); ?>">
                                                         <?php echo esc_html($cat->name); ?>
                                                         <span class="count33"><?php echo $real_count; ?></span>
                                                     </a>
@@ -179,85 +183,6 @@ $lango = pll_current_language();
                                     <?php endif; ?>
                                 </ul>
                             </div>
-                            
-                            <?php
-                            // دالة محسنة للحصول على slug التصنيف الحالي
-                            function get_current_category_slug()
-                            {
-                                // أولاً: تحقق من أرشيف التصنيف العادي
-                                if (is_product_category()) {
-                                    $category = get_queried_object();
-                                    if ($category && isset($category->slug)) {
-                                        return $category->slug;
-                                    }
-                                }
-
-                                // ثانياً: تحقق من taxonomy عام
-                                if (is_tax('product_cat')) {
-                                    $current_term = get_queried_object();
-                                    if ($current_term && isset($current_term->slug)) {
-                                        return $current_term->slug;
-                                    }
-                                }
-
-                                // ثالثاً: استخراج من الـ URL الحالي
-                                $request_uri = $_SERVER['REQUEST_URI'];
-
-                                // نمط للروابط العربية والإنجليزية
-                                $patterns = [
-                                    '/\/product-category\/([^\/\?]+)/',  // الحالة العادية
-                                    '/\/ar\/product-category\/([^\/\?]+)/', // اللغة العربية
-                                    '/\/en\/product-category\/([^\/\?]+)/', // اللغة الإنجليزية
-                                    '/category\/([^\/\?]+)/' // حالات أخرى محتملة
-                                ];
-
-                                foreach ($patterns as $pattern) {
-                                    if (preg_match($pattern, $request_uri, $matches)) {
-                                        $category_identifier = urldecode($matches[1]);
-
-                                        // حاول إيجاد التصنيف بالـ slug
-                                        $term = get_term_by('slug', $category_identifier, 'product_cat');
-                                        if ($term && !is_wp_error($term)) {
-                                            return $term->slug;
-                                        }
-
-                                        // حاول إيجاد التصنيف بالاسم (للأسماء العربية)
-                                        $term_by_name = get_term_by('name', $category_identifier, 'product_cat');
-                                        if ($term_by_name && !is_wp_error($term_by_name)) {
-                                            return $term_by_name->slug;
-                                        }
-
-                                        // إذا كنت تستخدم plugin للترجمة
-                                        if (function_exists('pll_get_term') || function_exists('icl_get_languages')) {
-                                            // محاولة البحث في اللغات المختلفة
-                                            $all_cats = get_terms(array(
-                                                'taxonomy' => 'product_cat',
-                                                'hide_empty' => false,
-                                            ));
-
-                                            foreach ($all_cats as $cat) {
-                                                // مقارنة بالاسم أو الـ slug
-                                                if (
-                                                    $cat->name === $category_identifier ||
-                                                    $cat->slug === $category_identifier ||
-                                                    urlencode($cat->name) === $category_identifier
-                                                ) {
-                                                    return $cat->slug;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                // رابعاً: تحقق من query vars
-                                $queried_cat = get_query_var('product_cat');
-                                if ($queried_cat) {
-                                    return $queried_cat;
-                                }
-
-                                return '';
-                            }
-                            ?>
 
 
                             <div class="widget-facet mt-4">

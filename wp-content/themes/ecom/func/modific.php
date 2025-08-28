@@ -263,6 +263,8 @@ function update_cart_quantity_ajax()
     <?php
     $fragments['.prd-count'] = ob_get_clean();
 
+    $data334 = get_cart_weighted_sale_percent_sum();
+
     wp_send_json_success(array(
         'action' => $action,
         'message' => $action == 'updated' ? 'تم تعديل الكمية بنجاح' : 'تم حذف المنتج بنجاح',
@@ -272,9 +274,274 @@ function update_cart_quantity_ajax()
         'is_empty' => WC()->cart->is_empty(),
         'new_quantity' => $quantity,
         'item_price' => $item_price,
+        'discount_percent' => $data334['sum_weighted_percent'],
         'fragments' => $fragments
     ));
 }
+
+// دالة حساب إجمالي نسبة الخصم
+/**
+ * ترجع تفاصيل الخصومات في السلة:
+ * - original_unit: السعر الأصلي للوحدة (regular) بنفس منطق العرض (ضرائب حسب إعداداتك)
+ * - current_unit: السعر الحالي المعروض (قد يكون سعر التخفيض)
+ * - sale_discount: خصم التخفيض (Regular - Sale) * الكمية
+ * - coupon_discount: خصم الكوبونات من WooCommerce (line_subtotal - line_total)
+ * - total_line_discount: إجمالي الخصم على هذا السطر (التخفيض + الكوبون)
+ * - original_line_total: إجمالي السعر الأصلي (قبل أي خصومات) = original_unit * qty
+ * - percent_of_original: نسبة الخصم من السعر الأصلي للسطر
+ * - totals: مجاميع عامة لكل الخصومات
+ */
+
+/**
+ * تحسب "نسبة خصم الوحدة" × "عدد القطع" لكل سطر في السلة
+ * وتُرجع مجموعهم + تفاصيل الأسطر.
+ *
+ * - النسبة محسوبة من regular → sale فقط.
+ * - بتحترم طريقة عرض الأسعار (شامل/غير شامل ضريبة) باستخدام wc_get_price_to_display.
+ * - لو مفيش regular أو مفيش sale حقيقي أقل من regular؛ النسبة بتبقى 0%.
+ */
+function get_cart_weighted_sale_percent_sum()
+{
+    if (!WC()->cart) {
+        return [
+            'items' => [],
+            'sum_weighted_percent' => 0.0,
+        ];
+    }
+
+    $items = [];
+    $sum_weighted_percent = 0.0;
+
+    foreach (WC()->cart->get_cart() as $cart_item) {
+        /** @var WC_Product $product */
+        $product = isset($cart_item['data']) ? $cart_item['data'] : null;
+        $qty = isset($cart_item['quantity']) ? (int) $cart_item['quantity'] : 0;
+
+        if (!$product || $qty <= 0) {
+            continue;
+        }
+
+        // أسعار المنتج
+        $regular_raw = (float) $product->get_regular_price();
+        $sale_raw = (float) $product->get_sale_price();
+
+        // لو مفيش regular، خليه fallback للسعر الحالي عشان ما تحصلش قسمة على صفر
+        if ($regular_raw <= 0) {
+            $regular_raw = (float) $product->get_price();
+        }
+
+        // تحويل لنفس منطق عرض السعر (شامل/غير شامل ضريبة)
+        $regular = (float) wc_get_price_to_display($product, ['price' => $regular_raw]);
+        $sale = (float) wc_get_price_to_display($product, ['price' => $sale_raw]);
+
+        // نسبة الخصم للوحدة (من regular → sale)
+        $unit_percent = 0.0;
+        if ($regular > 0 && $sale > 0 && $sale < $regular) {
+            $unit_percent = (($regular - $sale) / $regular) * 100.0; // %
+        }
+
+        // النسبة × عدد القطع لسطر السلة الحالي
+        $weighted_percent = $unit_percent * $qty;
+
+        // خزّن التفاصيل
+        $items[] = [
+            'product_id' => $product->get_id(),
+            'name' => $product->get_name(),
+            'qty' => $qty,
+            'regular_unit' => $regular,
+            'sale_unit' => $sale,
+            'unit_percent' => round($unit_percent, 2),      // نسبة خصم الوحدة
+            'weighted_percent' => round($weighted_percent, 2),  // النسبة × الكمية
+        ];
+
+        // جمع الإجمالي
+        $sum_weighted_percent += $weighted_percent;
+    }
+
+    return [
+        'items' => $items,
+        'sum_weighted_percent' => round($sum_weighted_percent, 2),
+    ];
+}
+
+
+// function get_total_discount_percentage()
+// {
+//     if (!WC()->cart) {
+//         return 0;
+//     }
+
+//     $include_tax = WC()->cart->display_prices_including_tax(); // نفس منطق العرض في السلة
+//     $original_total = 0.0; // إجمالي قبل الخصومات (حسب وضع الضريبة المعروض)
+//     $current_total = 0.0; // إجمالي بعد الخصومات (حسب وضع الضريبة المعروض)
+
+//     foreach (WC()->cart->get_cart() as $cart_item) {
+//         /** @var WC_Product $product */
+//         $product = isset($cart_item['data']) ? $cart_item['data'] : null;
+//         $qty = isset($cart_item['quantity']) ? (int) $cart_item['quantity'] : 0;
+
+//         if (!$product || $qty <= 0) {
+//             continue;
+//         }
+
+//         // السعر الأصلي للوحدة (regular). لو غير متاح، هنستخدم السعر الحالي كـ fallback
+//         $regular = (float) $product->get_regular_price();
+//         $sale = (float) $product->get_sale_price();
+//         if ($regular <= 0) {
+//             $regular = (float) $product->get_price();
+//         }
+
+//         // نحول السعر الأصلي للوحدة لنفس طريقة العرض (شامل/غير شامل الضريبة)
+//         $original_unit_display = (float) wc_get_price_to_display($product, ['price' => $regular]);
+//         $original_line_total = $original_unit_display * $qty;
+
+//         // إجمالي السطر الحالي بعد الخصومات (line_total) + الضريبة لو العرض شامل
+//         $line_total = isset($cart_item['line_total']) ? (float) $cart_item['line_total'] : 0.0;
+//         $line_tax = isset($cart_item['line_tax']) ? (float) $cart_item['line_tax'] : 0.0;
+
+//         $current_line_total = $include_tax ? ($line_total + $line_tax) : $line_total;
+
+//         // تراكم الإجماليات
+//         $original_total += $original_line_total;
+//         $current_total += $current_line_total;
+
+//         $disco = ($regular - $sale) / $regular * 100;
+//         // echo $regular - $sale;
+//         foreach ($cart_item as $item) {
+//             if (isset($item['qty']) && $item['qty'] > 0) {
+//                 $qty = $item['qty'];
+
+//                 echo $disco * $qty;
+//             }
+//         }
+
+//     }
+
+//     if ($original_total <= 0) {
+//         return 0;
+//     }
+
+//     $discount_total = max(0.0, $original_total - $current_total);
+//     $percent = ($discount_total / $original_total) * 100;
+
+//     return round($percent, precision: 2); // مثال: 25.00
+// }
+
+// function get_cart_discounts_details()
+// {
+//     if (!WC()->cart) {
+//         return [
+//             'items' => [],
+//             'totals' => [
+//                 'sale_discount_total' => 0.0,
+//                 'coupon_discount_total' => 0.0,
+//                 'total_discount' => 0.0,
+//                 'original_total' => 0.0,
+//                 'current_total' => 0.0,
+//                 'discount_percent' => 0.0,
+//             ],
+//         ];
+//     }
+
+//     $items = [];
+//     $totals = [
+//         'sale_discount_total' => 0.0,
+//         'coupon_discount_total' => 0.0,
+//         'total_discount' => 0.0,
+//         'original_total' => 0.0,
+//         'current_total' => 0.0,
+//         'discount_percent' => 0.0,
+//     ];
+
+//     foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
+//         /** @var WC_Product $product */
+//         $product = $cart_item['data'];
+//         $qty = (int) $cart_item['quantity'];
+
+//         if (!$product || $qty <= 0) {
+//             continue;
+//         }
+
+//         // أسعار "موحّدة" مع طريقة عرض السعر (مع/بدون ضريبة حسب إعداد المتجر)
+//         $regular_raw = (float) $product->get_regular_price(); // السعر الأصلي الخام
+//         // لو مفيش regular (منتجات متغيرة أحيانًا)، اعتبر السعر الحالي كأصلي عشان ما نطلعش أرقام سالبة
+//         if ($regular_raw <= 0) {
+//             $regular_raw = (float) $product->get_price();
+//         }
+
+//         $original_unit = (float) wc_get_price_to_display($product, ['price' => $regular_raw]);
+//         $current_unit = (float) wc_get_price_to_display($product, ['price' => (float) $product->get_price()]);
+
+//         // خصم التخفيض (Sale) = الفرق بين الأصلي والحالي * الكمية (لو في فعلاً فرق)
+//         $unit_sale_diff = max(0.0, $original_unit - $current_unit);
+//         $sale_discount = $unit_sale_diff * $qty;
+
+//         // خصم الكوبون من بيانات السطر في الكارت (pre-tax)
+//         // line_subtotal = قبل أي كوبونات، line_total = بعد الكوبونات
+//         $coupon_discount = 0.0;
+//         if (isset($cart_item['line_subtotal'], $cart_item['line_total'])) {
+//             $coupon_discount = max(0.0, (float) $cart_item['line_subtotal'] - (float) $cart_item['line_total']);
+//         }
+
+//         // الإجماليات
+//         $original_line_total = $original_unit * $qty;
+//         // السعر الحالي الإجمالي (قبل/بعد الكوبون؟ هنا بنحسبه من current_unit * qty)
+//         $current_line_total = $current_unit * $qty;
+//         $total_line_discount = $sale_discount + $coupon_discount;
+
+//         // نسبة الخصم من السعر الأصلي (لو الأصلي > 0)
+//         $percent_of_original = 0.0;
+//         if ($original_line_total > 0) {
+//             $percent_of_original = ($total_line_discount / $original_line_total) * 100.0;
+//         }
+
+//         // خزّن تفاصيل السطر
+//         $items[] = [
+//             'product_id' => $product->get_id(),
+//             'name' => $product->get_name(),
+//             'qty' => $qty,
+//             'original_unit' => $original_unit,
+//             'current_unit' => $current_unit,
+//             'sale_discount' => $sale_discount,
+//             'coupon_discount' => $coupon_discount,
+//             'total_line_discount' => $total_line_discount,
+//             'original_line_total' => $original_line_total,
+//             'current_line_total' => $current_line_total,
+//             'percent_of_original' => $percent_of_original,
+//         ];
+
+//         // جمع المجاميع
+//         $totals['sale_discount_total'] += $sale_discount;
+//         $totals['coupon_discount_total'] += $coupon_discount;
+//         $totals['total_discount'] += $total_line_discount;
+//         $totals['original_total'] += $original_line_total;
+//         $totals['current_total'] += $current_line_total;
+//     }
+
+//     // نسبة الخصم على مستوى السلة كلها من إجمالي السعر الأصلي
+//     if ($totals['original_total'] > 0) {
+//         $totals['discount_percent'] = ($totals['total_discount'] / $totals['original_total']) * 100.0;
+//     }
+
+//     return [
+//         'items' => $items,
+//         'totals' => $totals,
+//     ];
+// }
+// إضافة نسبة الخصم لـ fragments عند إضافة منتج للسلة
+// add_filter('woocommerce_add_to_cart_fragments', 'add_discount_to_fragments');
+
+// function add_discount_to_fragments($fragments)
+// {
+//     $discount_percent = get_total_discount_percentage();
+//     $fragments['.total.h6'] = '<span class="total h6">' . $discount_percent . '%</span>';
+
+//     // تحديث الإجمالي أيضاً
+//     $fragments['.cart-total-mer'] = '<span class="total-mer cart-total-mer">' . WC()->cart->get_cart_total() . '</span>';
+//     $fragments['.cart-subtotal-mer'] = '<span class="total-mer cart-subtotal-mer">' . WC()->cart->get_cart_subtotal() . '</span>';
+
+//     return $fragments;
+// }
 
 // دالة تحديث محتويات السلة
 function refresh_cart_contents_ajax()
@@ -374,10 +641,13 @@ function refresh_cart_contents_ajax()
     <?php
     $content = ob_get_clean();
 
+    $data334 = get_cart_weighted_sale_percent_sum();
+
     wp_send_json_success(array(
         'content' => $content,
         'cart_count' => $cart->get_cart_contents_count(),
         'cart_subtotal' => wc_price($cart->get_cart_contents_total()),
+        'discount_percent' => $data334['sum_weighted_percent'],
         'is_empty' => $cart->is_empty()
     ));
 }
@@ -523,6 +793,7 @@ function tf_update_cart_row_qty() {
         'row_total'     => $row_total,
         'cart_subtotal' => $cart_subtotal,
         'cart_total'    => $cart_total,
+        'data' => $updated
     ] );
 }
 
@@ -542,7 +813,7 @@ add_action( 'wp_enqueue_scripts', function() {
     }
 } );
 
-// تفاصيل الخصومات
+
 function tf_get_cart_discounts_breakdown() {
 
     $cart = WC()->cart;
@@ -798,7 +1069,14 @@ function add_cart_ajax_functionality()
                 // تحديث الإجمالي
                 $('.tf-totals-total-value').html(data.cart_subtotal);
                 $('.tf-totals-total-value2').html(data.cart_subtotal);
+                $('.discon').html(data.discount_total);
                 $('.total-mer').html(data.cart_subtotal);
+
+                // تحديث الخصم
+                if (data.discount_percent !== undefined) {
+                    $('.total.h6').text(data.discount_percent + '%');
+                }
+                // console.log(data);
 
                 // تحديث نص العدد في الـ subtotal
                 var itemText = data.cart_count == 1 ? 'item' : 'items';
@@ -1456,7 +1734,6 @@ function enqueue_ajax_filter_assets()
         '1.0',
         true
     );
-    
     // إذا إحنا في صفحة أرشيف تصنيف المنتج، خُذ الـ slug
     $current_cat = '';
     if (is_tax('product_cat')) {
@@ -1468,8 +1745,7 @@ function enqueue_ajax_filter_assets()
     wp_localize_script('ajax-filter', 'filter_params', array(
         'ajax_url' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('filter_nonce'),
-        'current_cat' => $current_cat,
-        'lang' => pll_current_language()
+        'current_cat' => $current_cat
     ));
 }
 
@@ -2354,6 +2630,307 @@ function filter_products_by_color()
     ));
 }
 
+// Sale Rule
+
+// Auth
+// add_action( 'woocommerce_created_customer', function( $customer_id ) {
+
+//     if ( isset( $_POST['first_name'] ) ) {
+//         update_user_meta( $customer_id, 'first_name', sanitize_text_field( $_POST['first_name'] ) );
+//     }
+
+//     if ( isset( $_POST['last_name'] ) ) {
+//         update_user_meta( $customer_id, 'last_name', sanitize_text_field( $_POST['last_name'] ) );
+//     }
+
+//     if ( isset( $_POST['billing_phone'] ) ) {
+//         update_user_meta( $customer_id, 'billing_phone', sanitize_text_field( $_POST['billing_phone'] ) );
+//     }
+
+//     if ( isset( $_POST['email'] ) && ! empty( $_POST['email'] ) ) {
+//         wp_update_user( array(
+//             'ID'         => $customer_id,
+//             'user_email' => sanitize_email( $_POST['email'] ),
+//         ) );
+//     }
+// });
+
+// add_filter( 'woocommerce_registration_errors', function( $errors, $username, $email ) {
+//     // لو الإيميل فاضي، ما نضيفش خطأ
+//     if ( empty( $_POST['email'] ) ) {
+//         $errors->remove( 'woocommerce_registration_error_email_required' );
+//     }
+//     return $errors;
+// }, 10, 3 );
+
+// // ما نطلبش الإيميل في الفاليديشن
+// add_filter( 'woocommerce_process_registration_errors', function( $errors, $username, $password, $email ) {
+//     return $errors;
+// }, 10, 4 );
+
+// // login
+// // 1. تمرير المتغيرات JavaScript المطلوبة
+// add_action('wp_enqueue_scripts', function () {
+//     if (is_page_template('page-custom-auth.php')) { // غير اسم التمبلت حسب ملفك
+//         wp_localize_script('jquery', 'WCAuth', array(
+//             'ajax' => admin_url('admin-ajax.php'),
+//             'loginNonce' => wp_create_nonce('wc_custom_login'),
+//             'otpNonce' => wp_create_nonce('wc_custom_otp'),
+//         ));
+//     }
+// });
+
+// // 2. معالج تسجيل الدخول عبر كلمة المرور (AJAX)
+// add_action('wp_ajax_wc_custom_login', 'handle_custom_login');
+// add_action('wp_ajax_nopriv_wc_custom_login', 'handle_custom_login');
+
+// function handle_custom_login()
+// {
+//     // التحقق من الـ nonce
+//     if (!wp_verify_nonce($_POST['security'], 'wc_custom_login')) {
+//         wp_die(json_encode(array(
+//             'success' => false,
+//             'data' => array('message' => 'Security check failed')
+//         )));
+//     }
+
+//     $username = sanitize_text_field($_POST['username']);
+//     $password = $_POST['password'];
+//     $remember = !empty($_POST['rememberme']);
+
+//     // التحقق من صحة البيانات
+//     if (empty($username) || empty($password)) {
+//         wp_die(json_encode(array(
+//             'success' => false,
+//             'data' => array('message' => 'Username and password are required')
+//         )));
+//     }
+
+//     // محاولة تسجيل الدخول
+//     $creds = array(
+//         'user_login' => $username,
+//         'user_password' => $password,
+//         'remember' => $remember,
+//     );
+
+//     $user = wp_signon($creds, false);
+
+//     if (is_wp_error($user)) {
+//         wp_die(json_encode(array(
+//             'success' => false,
+//             'data' => array('message' => $user->get_error_message())
+//         )));
+//     }
+
+//     // تسجيل الدخول نجح
+//     wp_set_current_user($user->ID);
+
+//     // تحديد رابط التوجيه
+//     $redirect_url = wc_get_page_permalink('my-account-2');
+//     if (!$redirect_url) {
+//         $redirect_url = home_url('/my-account-2/'); // fallback
+//     }
+
+//     wp_die(json_encode(array(
+//         'success' => true,
+//         'data' => array(
+//             'message' => 'Login successful',
+//             'redirect' => $redirect_url
+//         )
+//     )));
+// }
+
+// // 3. معالج إرسال OTP لتسجيل الدخول
+// add_action('wp_ajax_wc_send_login_otp', 'handle_send_login_otp');
+// add_action('wp_ajax_nopriv_wc_send_login_otp', 'handle_send_login_otp');
+
+// function handle_send_login_otp()
+// {
+//     if (!wp_verify_nonce($_POST['security'], 'wc_custom_otp')) {
+//         wp_die(json_encode(array(
+//             'success' => false,
+//             'data' => array('message' => 'Security check failed')
+//         )));
+//     }
+
+//     $phone = sanitize_text_field($_POST['phone']);
+
+//     if (empty($phone)) {
+//         wp_die(json_encode(array(
+//             'success' => false,
+//             'data' => array('message' => 'Phone number is required')
+//         )));
+//     }
+
+//     // البحث عن المستخدم بالموبايل
+//     $users = get_users(array(
+//         'meta_key' => 'billing_phone',
+//         'meta_value' => $phone,
+//         'number' => 1
+//     ));
+
+//     if (empty($users)) {
+//         wp_die(json_encode(array(
+//             'success' => false,
+//             'data' => array('message' => 'No account found with this phone number')
+//         )));
+//     }
+
+//     // توليد OTP وحفظه
+//     $otp_code = sprintf('%04d', rand(1000, 9999));
+//     $user_id = $users[0]->ID;
+
+//     // حفظ الكود مع انتهاء صالحية (5 دقائق)
+//     update_user_meta($user_id, 'login_otp_code', $otp_code);
+//     update_user_meta($user_id, 'login_otp_expires', time() + (5 * 60));
+
+//     // هنا يجب إرسال الـ OTP عبر SMS
+//     // للتجربة سنرجع الكود في الاستجابة
+
+//     wp_die(json_encode(array(
+//         'success' => true,
+//         'data' => array(
+//             'message' => 'OTP sent successfully',
+//             'dev' => $otp_code // احذف هذا في الإنتاج
+//         )
+//     )));
+// }
+
+// // 4. معالج التحقق من OTP لتسجيل الدخول
+// add_action('wp_ajax_wc_verify_login_otp', 'handle_verify_login_otp');
+// add_action('wp_ajax_nopriv_wc_verify_login_otp', 'handle_verify_login_otp');
+
+// function handle_verify_login_otp()
+// {
+//     if (!wp_verify_nonce($_POST['security'], 'wc_custom_otp')) {
+//         wp_die(json_encode(array(
+//             'success' => false,
+//             'data' => array('message' => 'Security check failed')
+//         )));
+//     }
+
+//     $phone = sanitize_text_field($_POST['phone']);
+//     $code = sanitize_text_field($_POST['code']);
+
+//     if (empty($phone) || empty($code)) {
+//         wp_die(json_encode(array(
+//             'success' => false,
+//             'data' => array('message' => 'Phone and OTP code are required')
+//         )));
+//     }
+
+//     // البحث عن المستخدم
+//     $users = get_users(array(
+//         'meta_key' => 'billing_phone',
+//         'meta_value' => $phone,
+//         'number' => 1
+//     ));
+
+//     if (empty($users)) {
+//         wp_die(json_encode(array(
+//             'success' => false,
+//             'data' => array('message' => 'Invalid phone number')
+//         )));
+//     }
+
+//     $user = $users[0];
+//     $saved_code = get_user_meta($user->ID, 'login_otp_code', true);
+//     $expires = get_user_meta($user->ID, 'login_otp_expires', true);
+
+//     // التحقق من الكود وانتهاء الصالحية
+//     if (empty($saved_code) || $saved_code !== $code) {
+//         wp_die(json_encode(array(
+//             'success' => false,
+//             'data' => array('message' => 'Invalid OTP code')
+//         )));
+//     }
+
+//     if (time() > $expires) {
+//         // حذف الكود المنتهي الصالحية
+//         delete_user_meta($user->ID, 'login_otp_code');
+//         delete_user_meta($user->ID, 'login_otp_expires');
+
+//         wp_die(json_encode(array(
+//             'success' => false,
+//             'data' => array('message' => 'OTP code has expired')
+//         )));
+//     }
+
+//     // تسجيل الدخول
+//     wp_set_current_user($user->ID);
+//     wp_set_auth_cookie($user->ID, true);
+
+//     // حذف الكود بعد الاستخدام
+//     delete_user_meta($user->ID, 'login_otp_code');
+//     delete_user_meta($user->ID, 'login_otp_expires');
+
+//     // تحديد رابط التوجيه
+//     $redirect_url = wc_get_page_permalink('my-account-2');
+//     if (!$redirect_url) {
+//         $redirect_url = home_url('/my-account-2/');
+//     }
+
+//     wp_die(json_encode(array(
+//         'success' => true,
+//         'data' => array(
+//             'message' => 'Login successful',
+//             'redirect' => $redirect_url
+//         )
+//     )));
+// }
+
+// // 5. إنشاء صفحة my-account-2 إذا لم تكن موجودة
+// add_action('init', function () {
+//     // التحقق من وجود الصفحة
+//     $page = get_page_by_path('my-account-2');
+
+//     if (!$page) {
+//         // إنشاء الصفحة
+//         wp_insert_post(array(
+//             'post_title' => 'My Account 2',
+//             'post_name' => 'my-account-2',
+//             'post_type' => 'page',
+//             'post_status' => 'publish',
+//             'post_content' => '[woocommerce_my_account]', // أو أي محتوى تريده
+//         ));
+//     }
+// });
+
+// Redirect logged-in users away from login/my-account page to Home
+// add_action('template_redirect', function () {
+//     // متعملش أي تحويل في AJAX/REST
+//     if ( wp_doing_ajax() || ( defined('REST_REQUEST') && REST_REQUEST ) ) {
+//         return;
+//     }
+
+//     // لو مش عامل لوجين.. ما نعملش حاجة
+//     if ( ! is_user_logged_in() ) {
+//         return;
+//     }
+
+//     // 1) صفحة مخصّصة /login (غيّر الـ slug لو مختلف)
+//     if ( is_page('login') ) {
+//         wp_safe_redirect( home_url('/') );
+//         exit;
+//     }
+
+//     // 2) لو بتستخدم صفحة Woo "My Account" كصفحة الدخول
+//     //    امنع الدخول لها وهي بدون أي endpoint (يعني شاشة اللوجين/الداشبورد)،
+//     //    لكن اسمح بباقي الأقسام (orders/edit-account/edit-address/..)
+//     if ( function_exists('is_account_page') && is_account_page() ) {
+//         // لو صفحة "تسجيل الخروج" استثناء
+//         if ( function_exists('is_wc_endpoint_url') && is_wc_endpoint_url('customer-logout') ) {
+//             return;
+//         }
+
+//         // لو مفيش أي endpoint (يعني فتح /my-account فقط) → رجّعه للهوم
+//         if ( function_exists('is_wc_endpoint_url') && ! is_wc_endpoint_url() ) {
+//             wp_safe_redirect( home_url('/') );
+//             exit;
+//         }
+//     }
+// });
+
 // Auth Registration Handler
 add_action('woocommerce_created_customer', function($customer_id) {
     // حفظ البيانات الإضافية
@@ -2640,6 +3217,140 @@ add_action('init', function() {
         ));
     }
 });
+
+// 6. إضافة زر تسجيل الدخول بـ OTP في HTML (اختياري)
+// أضف هذا في الـ template بعد زر Login العادي:
+/*
+<button type="button" id="btnLoginOtp" class="tf-btn w-100 mt-2" style="background: #28a745;">
+    Login with OTP
+</button>
+*/
+
+// // Tag Test
+// add_action('woocommerce_product_query', 'filter_shop_products_by_category_parameter');
+// function filter_shop_products_by_category_parameter($q)
+// {
+//     // التأكد من أننا في صفحة المتجر وليس في admin panel
+//     if (!is_admin() && is_shop() && $q->is_main_query()) {
+
+//         // التحقق من وجود parameter "product_cat" في الرابط
+//         if (isset($_GET['product_cat']) && !empty($_GET['product_cat'])) {
+//             $cat_id = intval($_GET['product_cat']);
+
+//             if ($cat_id > 0) {
+//                 // إضافة tax_query لفلترة المنتجات حسب التصنيف
+//                 $tax_query = $q->get('tax_query');
+//                 if (!is_array($tax_query)) {
+//                     $tax_query = array();
+//                 }
+
+//                 $tax_query[] = array(
+//                     'taxonomy' => 'product_cat',
+//                     'field' => 'term_id',
+//                     'terms' => $cat_id,
+//                 );
+
+//                 $q->set('tax_query', $tax_query);
+//             }
+//         }
+//     }
+// }
+
+// // إضافة عنوان مخصص لصفحة المتجر عند الفلترة بالتصنيف
+// add_filter('woocommerce_page_title', 'custom_shop_page_title_with_category');
+// function custom_shop_page_title_with_category($page_title)
+// {
+//     if (is_shop() && isset($_GET['product_cat']) && !empty($_GET['product_cat'])) {
+//         $cat_id = intval($_GET['product_cat']);
+//         $category_term = get_term($cat_id, 'product_cat');
+
+//         if ($category_term && !is_wp_error($category_term)) {
+//             return $category_term->name . ' Products';
+//         }
+//     }
+//     return $page_title;
+// }
+
+// // إضافة وصف مخصص للصفحة عند الفلترة
+// add_action('woocommerce_archive_description', 'custom_shop_description_with_tag');
+// function custom_shop_description_with_tag()
+// {
+//     if (is_shop() && isset($_GET['tag']) && !empty($_GET['tag'])) {
+//         $tag_id = intval($_GET['tag']);
+//         $category_term = get_term($tag_id, 'product_cat');
+
+//         if ($category_term && !is_wp_error($category_term)) {
+//             echo '<div class="category-filter-notice">';
+//             echo '<p>عرض المنتجات من تصنيف: <strong>' . esc_html($category_term->name) . '</strong></p>';
+//             echo '<a href="' . esc_url(wc_get_page_permalink('shop')) . '" class="btn btn-sm btn-outline-primary">عرض جميع المنتجات</a>';
+//             echo '</div>';
+//         }
+//     }
+// }
+
+// // تحسين SEO للصفحة المفلترة
+// add_filter('document_title_parts', 'custom_shop_seo_title_with_tag');
+// function custom_shop_seo_title_with_tag($title)
+// {
+//     if (is_shop() && isset($_GET['tag']) && !empty($_GET['tag'])) {
+//         $tag_id = intval($_GET['tag']);
+//         $category_term = get_term($tag_id, 'product_cat');
+
+//         if ($category_term && !is_wp_error($category_term)) {
+//             $title['title'] = $category_term->name . ' Products - ' . get_bloginfo('name');
+//         }
+//     }
+//     return $title;
+// }
+
+// // إضافة كلاس CSS مخصص للصفحة المفلترة
+// add_filter('body_class', 'add_shop_tag_filter_body_class');
+// function add_shop_tag_filter_body_class($classes)
+// {
+//     if (is_shop() && isset($_GET['tag']) && !empty($_GET['tag'])) {
+//         $classes[] = 'shop-filtered-by-tag';
+//         $classes[] = 'tag-' . intval($_GET['tag']);
+//     }
+//     return $classes;
+// }
+
+
+// // 7. معالج تسجيل الدخول العادي عبر WooCommerce (للنموذج العادي)
+// add_action('template_redirect', function () {
+//     if (is_page_template('page-custom-auth.php') && isset($_POST['login'])) {
+//         $username = sanitize_text_field($_POST['username']);
+//         $password = $_POST['password'];
+//         $remember = !empty($_POST['rememberme']);
+
+//         if (empty($username) || empty($password)) {
+//             wc_add_notice('Username and password are required', 'error');
+//             return;
+//         }
+
+//         $creds = array(
+//             'user_login' => $username,
+//             'user_password' => $password,
+//             'remember' => $remember,
+//         );
+
+//         $user = wp_signon($creds, false);
+
+//         if (is_wp_error($user)) {
+//             wc_add_notice($user->get_error_message(), 'error');
+//             return;
+//         }
+
+//         // التوجيه بعد تسجيل الدخول الناجح
+//         $redirect_url = wc_get_page_permalink('my-account-2');
+//         if (!$redirect_url) {
+//             $redirect_url = home_url('/my-account-2/');
+//         }
+
+//         wp_safe_redirect($redirect_url);
+//         exit;
+//     }
+// });
+
 
 // 2. أكشن AJAX
 add_action('wp_ajax_filter_products', 'filter_products');
@@ -3467,6 +4178,7 @@ function tf_render_account_order_detail_block(WC_Order $order)
         </div>
         <?php
 }
+
 function my_account_assets()
 {
     // حمّل سكربتك (عدّل المسار حسب مشروعك)
@@ -3486,6 +4198,52 @@ function my_account_assets()
     ]);
 }
 add_action('wp_enqueue_scripts', 'my_account_assets');
+
+
+// تحسين select field للمنتجات المرتبطة بناءً على التصنيف
+add_filter('acf/fields/post_object/query', 'filter_related_products_by_category', 10, 3);
+
+function filter_related_products_by_category($args, $field, $post_id)
+{
+
+    // التحقق من أن هذا هو الحقل المطلوب
+    if ($field['name'] !== 'link') {
+        return $args;
+    }
+
+    // التحقق من أن المنتج الحالي موجود
+    if (!$post_id || get_post_type($post_id) !== 'product') {
+        return $args;
+    }
+
+    // الحصول على تصنيفات المنتج الحالي
+    $current_categories = wp_get_post_terms($post_id, 'product_cat', array('fields' => 'ids'));
+
+    if (!empty($current_categories)) {
+        // إضافة tax_query لعرض المنتجات من نفس التصنيف فقط
+        $args['tax_query'] = array(
+            array(
+                'taxonomy' => 'product_cat',
+                'field' => 'term_id',
+                'terms' => $current_categories,
+                'operator' => 'IN'
+            )
+        );
+
+        // استبعاد المنتج الحالي من النتائج
+        $args['post__not_in'] = array($post_id);
+
+        // ترتيب النتائج
+        $args['orderby'] = 'title';
+        $args['order'] = 'ASC';
+
+        // تحديد عدد النتائج المعروضة
+        $args['posts_per_page'] = 50;
+    }
+
+    return $args;
+}
+
 
 // Product Timer
 require_once get_template_directory() . '/func/filter-wo.php';

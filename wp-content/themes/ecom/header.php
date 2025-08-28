@@ -34,6 +34,7 @@ $lango = pll_current_language();
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css"
     integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" type="text/css" href="<?= get_template_directory_uri(); ?>/assets/css/styles.css">
 
   <!-- Favicon and Touch Icons  -->
@@ -70,7 +71,8 @@ $lango = pll_current_language();
             <div class="topbar-left justify-content-center justify-content-sm-start">
               <ul class="topbar-option-list">
                 <li class="h6 d-none d-sm-flex">
-                  <a href="tel:18001234567" class="text-white link track" style="direction: <?= $lango == 'ar' ? 'rtl' : 'ltr'; ?>;">
+                  <a href="tel:18001234567" class="text-white link track"
+                    style="direction: <?= $lango == 'ar' ? 'rtl' : 'ltr'; ?>;">
                     <i class="icon icon-phone"></i>
                     <?= $lango == 'ar' ? 'اتصل بنا: ' . get_field('site_number', 'option') : 'Call us for free: ' . get_field('site_number', 'option'); ?>
                   </a>
@@ -85,7 +87,7 @@ $lango = pll_current_language();
               <?php
               $languages = pll_the_languages(array('raw' => 1));
               if (!empty($languages)): ?>
-              
+
                 <li class="tf-languages d-none d-xl-block">
                   <select class="tf-dropdown-select style-default color-white type-languages" id="languageSwitcher">
                     <?php foreach ($languages as $lang): ?>
@@ -95,13 +97,13 @@ $lango = pll_current_language();
                     <?php endforeach; ?>
                   </select>
                 </li>
-              
+
                 <script>
                   document.getElementById('languageSwitcher').addEventListener('change', function () {
                     if (this.value) window.location.href = this.value;
                   });
                 </script>
-              
+
               <?php endif; ?>
 
             </ul>
@@ -121,7 +123,8 @@ $lango = pll_current_language();
               </a>
             </div>
             <div class="col-xl-2 col-md-4 col-6 text-center text-xl-start">
-              <a href="<?= $lango == 'ar' ? site_url('/ar') : site_url(); ?>" class="logo-site justify-content-center justify-content-xl-start">
+              <a href="<?= $lango == 'ar' ? site_url('/ar') : site_url(); ?>"
+                class="logo-site justify-content-center justify-content-xl-start">
                 <img src="<?php the_field('site_logo_arabic', 'option'); ?>" alt="">
               </a>
             </div>
@@ -153,7 +156,8 @@ $lango = pll_current_language();
                     </select>
 
                     <ul class="select-options">
-                      <li class="link" rel=""><span><?php echo ($lango == 'ar' ? 'كل التصنيفات' : 'All categories'); ?></span></li>
+                      <li class="link" rel="">
+                        <span><?php echo ($lango == 'ar' ? 'كل التصنيفات' : 'All categories'); ?></span></li>
                       <?php foreach ($terms as $term): ?>
                         <li class="link" rel="<?php echo esc_attr($term->slug); ?>">
                           <span><?php echo esc_html($term->name); ?></span>
@@ -197,17 +201,17 @@ $lango = pll_current_language();
                   </li>
 
                   <li>
-                    
-                    <?php if (is_user_logged_in()) : ?> 
-                        <?php echo do_shortcode("[ti_wishlist_products_counter]") ?>
+
+                    <?php if (is_user_logged_in()): ?>
+                      <?php echo do_shortcode("[ti_wishlist_products_counter]") ?>
                     <?php else: ?>
                       <?php echo do_shortcode("[ti_wishlist_products_counter]") ?>
                       <script>
-                        jQuery(document).ready(function($) {
-                            var counter = $('.wishlist_products_counter_number'); // غير الكلاس حسب الكلاس المستخدم
-                            if (counter.text() == '0' || counter.text() == '') {
-                                counter.hide();
-                            }
+                        jQuery(document).ready(function ($) {
+                          var counter = $('.wishlist_products_counter_number'); // غير الكلاس حسب الكلاس المستخدم
+                          if (counter.text() == '0' || counter.text() == '') {
+                            counter.hide();
+                          }
                         });
                       </script>
                     <?php endif; ?>
@@ -255,7 +259,7 @@ $lango = pll_current_language();
                       ?>
                       <li>
                         <a href="<?= esc_url($term_link); ?>" class="nav-category_link h5">
-                          <i class="icon icon-tv"></i>
+                          <!-- <i class="icon icon-tv"></i> -->
                           <?= esc_html($term->name); ?>
                         </a>
                       </li>
@@ -270,168 +274,173 @@ $lango = pll_current_language();
               <nav class="box-navigation">
                 <ul class="box-nav-menu">
                   <li class="menu-item">
-                    <a href="javascript:void(0)" class="item-link"><?php echo $lango == 'ar' ? 'الرئيسية' : 'Home'; ?></a>
+                    <a href="javascript:void(0)"
+                      class="item-link"><?php echo $lango == 'ar' ? 'الرئيسية' : 'Home'; ?></a>
                   </li>
                   <li class="menu-item">
-                    <a href="<?= $lango == 'ar' ? home_url('/أسئلة-شائعة') : home_url('/faq'); ?>" class="item-link"><?php echo $lango == 'ar' ? 'الأسئلة الشائعة' : 'FAQ'; ?></a>
+                    <a href="<?= $lango == 'ar' ? home_url('/أسئلة-شائعة') : home_url('/faq'); ?>"
+                      class="item-link"><?php echo $lango == 'ar' ? 'الأسئلة الشائعة' : 'FAQ'; ?></a>
                   </li>
                   <li class="menu-item">
-                    <a href="<?= $lango == 'ar' ? home_url('/تواصل-معنا') : home_url('/contact-us'); ?>" class="item-link"><?php echo $lango == 'ar' ? 'اتصل بنا' : 'Contact'; ?></a>
+                    <a href="<?= $lango == 'ar' ? home_url('/تواصل-معنا') : home_url('/contact-us'); ?>"
+                      class="item-link"><?php echo $lango == 'ar' ? 'اتصل بنا' : 'Contact'; ?></a>
                   </li>
 
-                  
-                 <li class="menu-item">
-  <a href="javascript:void(0)" class="item-link"><?php echo $lango == 'ar' ? 'التسوق' : 'SHOP'; ?><i class="icon icon-caret-down"></i>
-  </a>
 
-  <div class="sub-menu mega-menu">
-    <div class="container">
-      <div class="row">
+                  <li class="menu-item">
+                    <a href="javascript:void(0)" class="item-link"><?php echo $lango == 'ar' ? 'التسوق' : 'SHOP'; ?><i
+                        class="icon icon-caret-down"></i>
+                    </a>
 
-        <?php
-        // 1) الأقسام الرئيسية
-        $parents = get_terms([
-          'taxonomy'   => 'product_cat',
-          'parent'     => 0,
-          'hide_empty' => true,
-          'orderby'    => 'menu_order',
-          'order'      => 'ASC',
-        ]);
+                    <div class="sub-menu mega-menu">
+                      <div class="container">
+                        <div class="row">
 
-        if ( ! is_wp_error($parents) && ! empty($parents) ) :
+                          <?php
+                          // 1) الأقسام الرئيسية
+                          $parents = get_terms([
+                            'taxonomy' => 'product_cat',
+                            'parent' => 0,
+                            'hide_empty' => true,
+                            'orderby' => 'menu_order',
+                            'order' => 'ASC',
+                          ]);
 
-          // أول 3 بس للأعمدة الشمال
-          $columns_left = array_slice($parents, 0, 3);
-        ?>
+                          if (!is_wp_error($parents) && !empty($parents)):
 
-        <!-- الأعمدة الشمال: 3×col-2 (قسم رئيسي + أبناؤه) -->
-        <?php foreach ($columns_left as $parent_term) : ?>
-          <div class="col-2">
-            <div class="mega-menu-item">
-              <h4 class="menu-heading">
-                <a href="<?php echo esc_url(get_term_link($parent_term)); ?>">
-                  <?php echo esc_html($parent_term->name); ?>
-                </a>
-              </h4>
+                            // أول 3 بس للأعمدة الشمال
+                            $columns_left = array_slice($parents, 0, 3);
+                            ?>
 
-              <?php
-              $children = get_terms([
-                'taxonomy'   => 'product_cat',
-                'parent'     => $parent_term->term_id,
-                'hide_empty' => true,
-                'number' => 4,
-                'orderby'    => 'menu_order',
-                'order'      => 'ASC',
-              ]);
-              ?>
+                            <!-- الأعمدة الشمال: 3×col-2 (قسم رئيسي + أبناؤه) -->
+                            <?php foreach ($columns_left as $parent_term): ?>
+                              <div class="col-2">
+                                <div class="mega-menu-item">
+                                  <h4 class="menu-heading">
+                                    <a href="<?php echo esc_url(get_term_link($parent_term)); ?>">
+                                      <?php echo esc_html($parent_term->name); ?>
+                                    </a>
+                                  </h4>
 
-              <?php if ( ! is_wp_error($children) && ! empty($children) ) : ?>
-                <ul class="sub-menu_list">
-                  <?php foreach ($children as $child) : ?>
-                    <li>
-                      <a href="<?php echo esc_url(get_term_link($child)); ?>" class="sub-menu_link">
-                        <?php echo esc_html($child->name); ?>
-                      </a>
-                    </li>
-                  <?php endforeach; ?>
-                </ul>
-              <?php endif; ?>
-            </div>
-          </div>
-        <?php endforeach; ?>
+                                  <?php
+                                  $children = get_terms([
+                                    'taxonomy' => 'product_cat',
+                                    'parent' => $parent_term->term_id,
+                                    'hide_empty' => true,
+                                    'number' => 4,
+                                    'orderby' => 'menu_order',
+                                    'order' => 'ASC',
+                                  ]);
+                                  ?>
 
-        <!-- العمود اليمين: آخر اتنين Discount Rules -->
-        <div class="col-6">
-          <ul class="list-hor">
-            <?php
-            $rules_q = new WP_Query([
-              'post_type'      => 'wc_discount_rule',
-              'post_status'    => 'publish',
-              'posts_per_page' => 2, // اتنين بس
-              'orderby'        => 'date',
-              'order'          => 'DESC',
-            ]);
+                                  <?php if (!is_wp_error($children) && !empty($children)): ?>
+                                    <ul class="sub-menu_list">
+                                      <?php foreach ($children as $child): ?>
+                                        <li>
+                                          <a href="<?php echo esc_url(get_term_link($child)); ?>" class="sub-menu_link">
+                                            <?php echo esc_html($child->name); ?>
+                                          </a>
+                                        </li>
+                                      <?php endforeach; ?>
+                                    </ul>
+                                  <?php endif; ?>
+                                </div>
+                              </div>
+                            <?php endforeach; ?>
 
-            if ( $rules_q->have_posts() ) :
-              while ( $rules_q->have_posts() ) :
-                $rules_q->the_post();
-                $rule_id    = get_the_ID();
-                $title      = get_the_title() ?: 'Sale';
-                $discount_url = function_exists('wcd_get_discount_rule_url') 
-                                ? wcd_get_discount_rule_url($rule_id) 
-                                : get_permalink($rule_id);
+                            <!-- العمود اليمين: آخر اتنين Discount Rules -->
+                            <div class="col-6">
+                              <ul class="list-hor">
+                                <?php
+                                $rules_q = new WP_Query([
+                                  'post_type' => 'wc_discount_rule',
+                                  'post_status' => 'publish',
+                                  'posts_per_page' => 2, // اتنين بس
+                                  'orderby' => 'date',
+                                  'order' => 'DESC',
+                                ]);
 
-                $percent   = (float) get_post_meta($rule_id, '_wcd_percent', true);
-                $bannerTxt = (string) get_post_meta($rule_id, '_wcd_banner', true);
+                                if ($rules_q->have_posts()):
+                                  while ($rules_q->have_posts()):
+                                    $rules_q->the_post();
+                                    $rule_id = get_the_ID();
+                                    $title = get_the_title() ?: 'Sale';
+                                    $discount_url = function_exists('wcd_get_discount_rule_url')
+                                      ? wcd_get_discount_rule_url($rule_id)
+                                      : get_permalink($rule_id);
 
-                $sale_text = $bannerTxt
-                  ? ( (strpos($bannerTxt, '%s') !== false) ? sprintf($bannerTxt, $percent) : $bannerTxt )
-                  : sprintf('SALE upto %s%%', $percent);
+                                    $percent = (float) get_post_meta($rule_id, '_wcd_percent', true);
+                                    $bannerTxt = (string) get_post_meta($rule_id, '_wcd_banner', true);
 
-                if ( has_post_thumbnail($rule_id) ) {
-                  $image_url = get_the_post_thumbnail_url($rule_id, 'large');
-                } else {
-                  $image_url = wc_placeholder_img_src();
-                }
-            ?>
-              <li class="wg-cls hover-img">
-                <a href="<?php echo esc_url($discount_url); ?>" class="image img-style">
-                  <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($title); ?>" class="lazyloaded" />
-                </a>
-                <div class="cls-content">
-                  <h4 class="tag_cls"><?php echo esc_html($title); ?></h4>
-                  
-                  <a href="<?php echo esc_url($discount_url); ?>" class="tf-btn-line">
-                    <?php echo $lango == 'ar' ? 'تسوق الآن' : 'Shop now'; ?>
-                  </a>
-                </div>
-              </li>
-            <?php
-              endwhile;
-              wp_reset_postdata();
-            endif;
-            ?>
-          </ul>
-        </div>
+                                    $sale_text = $bannerTxt
+                                      ? ((strpos($bannerTxt, '%s') !== false) ? sprintf($bannerTxt, $percent) : $bannerTxt)
+                                      : sprintf('SALE upto %s%%', $percent);
 
-        <?php endif; // end parents check ?>
-      </div>
-    </div>
-  </div>
-</li>
+                                    if (has_post_thumbnail($rule_id)) {
+                                      $image_url = get_the_post_thumbnail_url($rule_id, 'large');
+                                    } else {
+                                      $image_url = wc_placeholder_img_src();
+                                    }
+                                    ?>
+                                    <li class="wg-cls hover-img">
+                                      <a href="<?php echo esc_url($discount_url); ?>" class="image img-style">
+                                        <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($title); ?>"
+                                          class="lazyloaded" />
+                                      </a>
+                                      <div class="cls-content">
+                                        <h4 class="tag_cls"><?php echo esc_html($title); ?></h4>
 
-<style>
-    .mega-menu-item .child-list {
-  display: none;
-  position: absolute;
-  top: 100%;       /* يطلع تحت الأب */
-  left: 0;
-  background: #fff;
-  min-width: 180px;
-  padding: 8px 0;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  z-index: 999;
-}
+                                        <a href="<?php echo esc_url($discount_url); ?>" class="tf-btn-line">
+                                          <?php echo $lango == 'ar' ? 'تسوق الآن' : 'Shop now'; ?>
+                                        </a>
+                                      </div>
+                                    </li>
+                                    <?php
+                                  endwhile;
+                                  wp_reset_postdata();
+                                endif;
+                                ?>
+                              </ul>
+                            </div>
 
-.mega-menu-item:hover .child-list {
-  display: block;
-}
+                          <?php endif; // end parents check ?>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
 
-.mega-menu-item .child-list li a {
-  display: block;
-  padding: 6px 14px;
-  font-size: 14px;
-  color: #333;
-}
+                  <style>
+                    .mega-menu-item .child-list {
+                      display: none;
+                      position: absolute;
+                      top: 100%;
+                      /* يطلع تحت الأب */
+                      left: 0;
+                      background: #fff;
+                      min-width: 180px;
+                      padding: 8px 0;
+                      border: 1px solid #ddd;
+                      border-radius: 4px;
+                      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                      z-index: 999;
+                    }
 
-.mega-menu-item .child-list li a:hover {
-  background: #f5f5f5;
-  color: #000;
-}
+                    .mega-menu-item:hover .child-list {
+                      display: block;
+                    }
 
-</style>
+                    .mega-menu-item .child-list li a {
+                      display: block;
+                      padding: 6px 14px;
+                      font-size: 14px;
+                      color: #333;
+                    }
+
+                    .mega-menu-item .child-list li a:hover {
+                      background: #f5f5f5;
+                      color: #000;
+                    }
+                  </style>
 
 
                 </ul>
@@ -571,7 +580,8 @@ $lango = pll_current_language();
                 <i class="icon icon-truck"></i>
                 <a href="<?php echo $product_link; ?>">
                   <p class="h6 text-black">
-                    <?php echo $lango == 'ar' ? 'المنتج الأكثر خصم' : 'Most Discounted Product'; ?>: <?php echo $title; ?> <span><?php echo $top['percent']; ?>%</span>
+                    <?php echo $lango == 'ar' ? 'المنتج الأكثر خصم' : 'Most Discounted Product'; ?>: <?php echo $title; ?>
+                    <span><?php echo $top['percent']; ?>%</span>
                   </p>
                 </a>
 
@@ -585,7 +595,7 @@ $lango = pll_current_language();
       </div>
     </header>
     <header class="tf-header header-fixed style-5 bg-dark-blu">
-      <div class="header-top d-xl-none">
+      <div class="header-top ">
         <div class="container-full-2">
           <div class="row align-items-center">
             <div class="col-md-4 col-3 d-xl-none">
@@ -604,7 +614,8 @@ $lango = pll_current_language();
                   <div class="select-category">
 
                     <select name="product_cat" id="product_cat" class="dropdown_product_cat">
-                      <option value="" selected="selected"><?php echo $lango == 'ar' ? 'جميع الأقسام' : 'All categories'; ?></option>
+                      <option value="" selected="selected">
+                        <?php echo $lango == 'ar' ? 'جميع الأقسام' : 'All categories'; ?></option>
                       <?php $args = array(
                         'taxonomy' => 'product_cat',
                         'hide_empty' => false,
@@ -617,15 +628,19 @@ $lango = pll_current_language();
                         </option>
                       <?php endforeach; ?>
                     </select>
-                    <ul class="select-options"> 
-                      <li class="link" rel=""><span><?php echo $lango == 'ar' ? 'جميع الأقسام' : 'All categories'; ?></span></li>
+                    <ul class="select-options">
+                      <li class="link" rel="">
+                        <span><?php echo $lango == 'ar' ? 'جميع الأقسام' : 'All categories'; ?></span></li>
                       <?php foreach ($terms as $term): ?>
-                        <li class="link" rel="<?php echo esc_attr($term->slug); ?>"><span><?php echo esc_html($term->name); ?></span></li>
+                        <li class="link" rel="<?php echo esc_attr($term->slug); ?>">
+                          <span><?php echo esc_html($term->name); ?></span></li>
                       <?php endforeach; ?>
                     </ul>
                   </div>
                   <span class="br-line type-vertical"></span>
-                  <input class="style-def" type="text" placeholder="<?php echo $lango == 'ar' ? 'بحث عن منتجات...' : 'Search for products...'; ?>" required>
+                  <input class="style-def" type="text"
+                    placeholder="<?php echo $lango == 'ar' ? 'بحث عن منتجات...' : 'Search for products...'; ?>"
+                    required>
                   <button type="submit" class="btn-submit">
                     <i class="icon icon-magnifying-glass"></i>
                     <span class="h6 fw-bold"><?php echo $lango == 'ar' ? 'بحث' : 'Search'; ?></span>
@@ -652,26 +667,31 @@ $lango = pll_current_language();
                     </a>
                   </li>
 
-                  <li class="d-none d-sm-flex">
-                    <a class="nav-icon-item-2 text-white link" href="wishlist.html">
-                      <i class="icon icon-heart"></i>
-                      <span class="count">24</span>
-                    </a>
-                  </li>
                   <li>
-                    <a class="nav-icon-item-2 text-white link" href="#shoppingCart" data-bs-toggle="offcanvas">
-                      <div class="position-relative d-flex">
-                        <i class="icon icon-shopping-cart-simple"></i>
-                        <span class="count">24</span>
-                      </div>
-                      <div class="nav-icon-item_sub d-none d-sm-grid">
-                        <span class="text-sub text-small-2">Your cart</span>
-                        <span class="h6">$0.00</span>
-                      </div>
-                    </a>
-                  </li>
-
                   
+                    <?php if (is_user_logged_in()): ?>
+                      <?php echo do_shortcode("[ti_wishlist_products_counter]") ?>
+                    <?php else: ?>
+                      <?php echo do_shortcode("[ti_wishlist_products_counter]") ?>
+                      <script>
+                        jQuery(document).ready(function ($) {
+                          var counter = $('.wishlist_products_counter_number'); // غير الكلاس حسب الكلاس المستخدم
+                          if (counter.text() == '0' || counter.text() == '') {
+                            counter.hide();
+                          }
+                        });
+                      </script>
+                    <?php endif; ?>
+                  </li>
+                  <!-- <li>
+                                                        <a href="#compare" data-bs-toggle="offcanvas">
+                                                          <span class="icon icon-compare"></span>
+                                                          <span class="compare-count"><?php //echo count( compare_get_ids() ); ?></span>
+                                                        </a>
+                                                      </li> -->
+                  <?php echo my_header_cart_markup(); ?>
+
+
                 </ul>
               </div>
             </div>
@@ -690,15 +710,17 @@ $lango = pll_current_language();
                 </div>
                 <ul class="box-nav-category active-item">
                   <?php
-                  $terms = get_terms(array(
+                  $terms = get_terms([
                     'taxonomy' => 'product_cat',
-                    'hide_empty' => false,
+                    'hide_empty' => true,
                     'orderby' => 'name',
-                    'pad_counts' => true,
-                  ));
+                    'pad_counts' => true
+                  ]);
 
-                  if (!empty($terms) && !is_wp_error($terms)):
-                    foreach ($terms as $term):
+                  $children_only = array_filter($terms, fn($t) => $t->parent !== 0);
+
+                  if (!empty($children_only) && !is_wp_error($children_only)):
+                    foreach ($children_only as $term):
                       $term_link = get_term_link($term);
                       $thumb_id = get_term_meta($term->term_id, 'thumbnail_id', true);
                       $image_url = $thumb_id ? wp_get_attachment_image_url($thumb_id, 'medium') : wc_placeholder_img_src();
@@ -706,7 +728,7 @@ $lango = pll_current_language();
                       ?>
                       <li>
                         <a href="<?= esc_url($term_link); ?>" class="nav-category_link h5">
-                          <i class="icon icon-tv"></i>
+                          <!-- <i class="icon icon-tv"></i> -->
                           <?= esc_html($term->name); ?>
                         </a>
                       </li>
@@ -721,91 +743,135 @@ $lango = pll_current_language();
               <nav class="box-navigation">
                 <ul class="box-nav-menu">
                   <li class="menu-item">
-                    <a href="javascript:void(0)" class="item-link"><?php echo $lango == 'ar' ? 'الرئيسية' : 'Home'; ?></a>
+                    <a href="javascript:void(0)"
+                      class="item-link"><?php echo $lango == 'ar' ? 'الرئيسية' : 'Home'; ?></a>
                   </li>
                   <li class="menu-item">
-                    <a href="<?= home_url('/faq'); ?>" class="item-link"><?php echo $lango == 'ar' ? 'الأسئلة الشائعة' : 'FAQ'; ?></a>
+                    <a href="<?= $lango == 'ar' ? home_url('/تواصل-معنا') : home_url('/contact-us'); ?>"
+                      class="item-link"><?php echo $lango == 'ar' ? 'اتصل بنا' : 'Contact'; ?></a>
                   </li>
                   <li class="menu-item">
-                    <a href="<?= home_url('/contact-us'); ?>" class="item-link"><?php echo $lango == 'ar' ? 'اتصل بنا' : 'Contact'; ?></a>
+                    <a href="<?= $lango == 'ar' ? home_url('/أسئلة-شائعة') : home_url('/faq'); ?>"
+                      class="item-link"><?php echo $lango == 'ar' ? 'الأسئلة الشائعة' : 'FAQ'; ?></a>
                   </li>
 
                   <li class="menu-item">
-                    <a href="javascript:void(0)" class="item-link">
-                      <?php echo $lango == 'ar' ? 'التسوق' : 'SHOP'; ?> <i class="icon icon-caret-down"></i>
+                    <a href="javascript:void(0)" class="item-link"><?php echo $lango == 'ar' ? 'التسوق' : 'SHOP'; ?><i
+                        class="icon icon-caret-down"></i>
                     </a>
 
                     <div class="sub-menu mega-menu">
                       <div class="container">
                         <div class="row">
 
-                          <!-- اليسار: شبكة 3 أعمدة -->
-                          <div class="col-lg-9 col-md-8">
-                            <div class="row">
-                              <?php
-                              // هات التصنيفات الرئيسية
-                              $top_cats = get_terms([
-                                'taxonomy' => 'product_cat',
-                                'parent' => 0,
-                                'hide_empty' => true,
-                                'orderby' => 'menu_order',
-                                'order' => 'ASC',
-                              ]);
+                          <?php
+                          // 1) الأقسام الرئيسية
+                          $parents = get_terms([
+                            'taxonomy' => 'product_cat',
+                            'parent' => 0,
+                            'hide_empty' => true,
+                            'orderby' => 'menu_order',
+                            'order' => 'ASC',
+                          ]);
 
-                              if (!is_wp_error($top_cats) && !empty($top_cats)):
-                                // اقسمهم على صفوف من 3 أعمدة
-                                $chunks = array_chunk($top_cats, 3);
-                                foreach ($chunks as $row):
-                                  foreach ($row as $cat):
-                                    $subs = get_terms([
-                                      'taxonomy' => 'product_cat',
-                                      'parent' => $cat->term_id,
-                                      'hide_empty' => false,
-                                      'orderby' => 'menu_order',
-                                      'order' => 'ASC',
-                                    ]);
-                                    ?>
-                                    <div class="col-12 col-md-6 col-lg-4 mb-4">
-                                      <div class="mega-menu-item">
-                                        <h4 class="menu-heading mb-2">
-                                          <a class="main-cat-link" href="<?php echo esc_url(get_term_link($cat)); ?>">
-                                            <?php echo esc_html($cat->name); ?>
+                          if (!is_wp_error($parents) && !empty($parents)):
+
+                            // أول 3 بس للأعمدة الشمال
+                            $columns_left = array_slice($parents, 0, 3);
+                            ?>
+
+                            <!-- الأعمدة الشمال: 3×col-2 (قسم رئيسي + أبناؤه) -->
+                            <?php foreach ($columns_left as $parent_term): ?>
+                              <div class="col-2">
+                                <div class="mega-menu-item">
+                                  <h4 class="menu-heading">
+                                    <a href="<?php echo esc_url(get_term_link($parent_term)); ?>">
+                                      <?php echo esc_html($parent_term->name); ?>
+                                    </a>
+                                  </h4>
+
+                                  <?php
+                                  $children = get_terms([
+                                    'taxonomy' => 'product_cat',
+                                    'parent' => $parent_term->term_id,
+                                    'hide_empty' => true,
+                                    'number' => 4,
+                                    'orderby' => 'menu_order',
+                                    'order' => 'ASC',
+                                  ]);
+                                  ?>
+
+                                  <?php if (!is_wp_error($children) && !empty($children)): ?>
+                                    <ul class="sub-menu_list">
+                                      <?php foreach ($children as $child): ?>
+                                        <li>
+                                          <a href="<?php echo esc_url(get_term_link($child)); ?>" class="sub-menu_link">
+                                            <?php echo esc_html($child->name); ?>
                                           </a>
-                                        </h4>
+                                        </li>
+                                      <?php endforeach; ?>
+                                    </ul>
+                                  <?php endif; ?>
+                                </div>
+                              </div>
+                            <?php endforeach; ?>
 
-                                        <?php if (!empty($subs) && !is_wp_error($subs)): ?>
-                                          <ul class="sub-menu_list styled-sub list-unstyled m-0">
-                                            <?php foreach ($subs as $sub): ?>
-                                              <li class="mb-1">
-                                                <a href="<?php echo esc_url(get_term_link($sub)); ?>" class="sub-cat-link">
-                                                  <span class="sub-icon">➤</span> <?php echo esc_html($sub->name); ?>
-                                                </a>
-                                              </li>
-                                            <?php endforeach; ?>
-                                          </ul>
-                                        <?php endif; ?>
+                            <!-- العمود اليمين: آخر اتنين Discount Rules -->
+                            <div class="col-6">
+                              <ul class="list-hor">
+                                <?php
+                                $rules_q = new WP_Query([
+                                  'post_type' => 'wc_discount_rule',
+                                  'post_status' => 'publish',
+                                  'posts_per_page' => 2, // اتنين بس
+                                  'orderby' => 'date',
+                                  'order' => 'DESC',
+                                ]);
+
+                                if ($rules_q->have_posts()):
+                                  while ($rules_q->have_posts()):
+                                    $rules_q->the_post();
+                                    $rule_id = get_the_ID();
+                                    $title = get_the_title() ?: 'Sale';
+                                    $discount_url = function_exists('wcd_get_discount_rule_url')
+                                      ? wcd_get_discount_rule_url($rule_id)
+                                      : get_permalink($rule_id);
+
+                                    $percent = (float) get_post_meta($rule_id, '_wcd_percent', true);
+                                    $bannerTxt = (string) get_post_meta($rule_id, '_wcd_banner', true);
+
+                                    $sale_text = $bannerTxt
+                                      ? ((strpos($bannerTxt, '%s') !== false) ? sprintf($bannerTxt, $percent) : $bannerTxt)
+                                      : sprintf('SALE upto %s%%', $percent);
+
+                                    if (has_post_thumbnail($rule_id)) {
+                                      $image_url = get_the_post_thumbnail_url($rule_id, 'large');
+                                    } else {
+                                      $image_url = wc_placeholder_img_src();
+                                    }
+                                    ?>
+                                    <li class="wg-cls hover-img">
+                                      <a href="<?php echo esc_url($discount_url); ?>" class="image img-style">
+                                        <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($title); ?>"
+                                          class="lazyloaded" />
+                                      </a>
+                                      <div class="cls-content">
+                                        <h4 class="tag_cls"><?php echo esc_html($title); ?></h4>
+
+                                        <a href="<?php echo esc_url($discount_url); ?>" class="tf-btn-line">
+                                          <?php echo $lango == 'ar' ? 'تسوق الآن' : 'Shop now'; ?>
+                                        </a>
                                       </div>
-                                    </div>
-                                  <?php endforeach; ?>
-                                  <!-- سطر جديد تلقائي بعد كل 3 عناصر -->
-                                  <div class="w-100 d-none d-lg-block"></div>
-                                <?php endforeach;
-                              endif; ?>
+                                    </li>
+                                    <?php
+                                  endwhile;
+                                  wp_reset_postdata();
+                                endif;
+                                ?>
+                              </ul>
                             </div>
-                          </div>
 
-                          <!-- اليمين: عمود صورة البانر (الجزء الأحمر في الصورة) -->
-                          <div class="col-lg-3 col-md-4">
-                            <div class="mega-menu-banner h-100 d-flex align-items-stretch">
-                              <a href="#" class="w-100">
-                                <img
-                                  src="<?php echo esc_url(get_template_directory_uri() . '/assets/images/banner/banner-lookbook.jpg'); ?>"
-                                  alt="Menu Banner" class="img-fluid rounded object-fit-cover w-100 h-100"
-                                  style="min-height:220px;">
-                              </a>
-                            </div>
-                          </div>
-
+                          <?php endif; // end parents check ?>
                         </div>
                       </div>
                     </div>
@@ -872,10 +938,12 @@ $lango = pll_current_language();
               </nav>
             </div>
             <div class="col-right">
-              <i class="icon icon-truck"></i>
-              <p class="h6 text-black">
-                <?php echo $lango == 'ar' ? 'شحن مجاني' : 'Free Shipping'; ?> <span class="fw-bold text-primary"><?php echo $lango == 'ar' ? '150 ريال' : 'SAR 150'; ?></span>
-              </p>
+              <div class="lang-switcher">
+                <a href="<?= $lango == 'ar' ? site_url('/') : site_url('/ar'); ?>" class="btn btn-border btn-sm">
+                  <?= $lango == 'ar' ? 'English' : 'عربي'; ?>
+                  <i class="fa fa-globe"></i>
+                </a>
+              </div>
             </div>
           </div>
         </div>

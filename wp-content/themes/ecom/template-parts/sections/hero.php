@@ -65,7 +65,7 @@ if ( $loop->have_posts() ) :
           <div class="sld_image">
             <img src="<?= esc_url($banner_prod); ?>"
               data-src="<?= esc_url($banner_prod); ?>" alt="<?= get_the_title(); ?>"
-              class="lazyload scale-item w-30" style="min-height: 920px;">
+              class="lazyload scale-item w-30" style="min-height: 690px;">
           </div>
           <div class="sld_content">
             <div class="container">
@@ -108,7 +108,7 @@ if ( $loop->have_posts() ) :
                     <div class="price-wrap price_sld fade-item fade-item-3">
                       <span class="h1 fw-medium price-new text-primary">
                         <?= number_format($sale_price, 2); ?>
-                        <small style="font-size:17px;">SAR</small>
+                        <small style="font-size:17px;"></small>
                       </span>
                       <span class="price-old h3">
                         <?= number_format($regular_price, 2); ?>

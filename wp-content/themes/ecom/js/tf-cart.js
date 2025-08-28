@@ -30,6 +30,8 @@ jQuery(function($) {
                     $display.text(newQty);
                     // حدّث السعر الجزئي للصف
                     $row.find('.item-price').html(resp.data.row_total);
+
+                    // console.log(resp.data.data);
           
                     // لو حابب تحدّث سب‌توتال أو توتال عام:
                     $('.cart-subtotal').html(resp.data.cart_subtotal);

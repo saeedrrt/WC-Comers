@@ -1,7 +1,7 @@
 <?php
 $lango = pll_current_language();
 // التاج المطلوب
-$tag_id = 65;
+$tag_id = 240;
 
 // استعلام منتجات بتاج محدد (ID)
 $args = array(

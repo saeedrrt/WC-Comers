@@ -13,12 +13,59 @@ global $product;
 
 get_header();
 
+$lango = pll_current_language();
+
 // Get the current product or highest discount product
 $current_product = wc_get_product(get_the_ID());
 $product = $current_product ? $current_product : get_highest_discount_product_with_timer();
 
 if (!$product) {
     return;
+}
+
+$product_id = $product->get_id();
+// إضافة دالة للتحقق من تصنيف المنتج
+function is_electronics_category($product_id) {
+    // نحصل على تصنيفات المنتج
+    $product_categories = wp_get_post_terms($product_id, 'product_cat', array('fields' => 'ids'));
+    
+    if (empty($product_categories)) {
+        return false;
+    }
+    
+    // نحصل على تصنيف الإلكترونيات والتصنيفات الفرعية
+    $electronics_category = get_term_by('slug', 'electronic', 'product_cat');
+    if (empty($electronics_category)) {
+        $electronics_category = get_term_by('slug', 'electronic_ar', 'product_cat');
+    }
+    if (empty($electronics_category)) {
+        $electronics_category = get_term_by('slug', 'electronic', 'product_cat');
+    }
+    if (empty($electronics_category)) {
+        // إذا لم يوجد تصنيف بالـ slug هذا، نبحث بالاسم
+        $electronics_category = get_term_by('name', 'electronic_ar', 'product_cat');
+        if (empty($electronics_category)) {
+            $electronics_category = get_term_by('name', 'Electronic', 'product_cat');
+        }
+    }
+    
+    if (empty($electronics_category)) {
+        return false;
+    }
+    
+    // نتحقق إذا كان المنتج في تصنيف الإلكترونيات أو أي تصنيف فرعي منه
+    $electronics_and_children = get_terms(array(
+        'taxonomy' => 'product_cat',
+        'child_of' => $electronics_category->term_id,
+        'hide_empty' => false,
+        'fields' => 'ids'
+    ));
+    
+    // إضافة تصنيف الإلكترونيات نفسه للمصفوفة
+    $electronics_and_children[] = $electronics_category->term_id;
+    
+    // نتحقق إذا كان أي تصنيف من تصنيفات المنتج موجود في تصنيفات الإلكترونيات
+    return !empty(array_intersect($product_categories, $electronics_and_children));
 }
 
 // Function to get product images
@@ -104,7 +151,6 @@ function display_product_price(WC_Product $product)
     return $output;
 }
 
-
 // Function to display countdown timer
 function display_countdown_timer($product)
 {
@@ -126,10 +172,12 @@ function display_countdown_timer($product)
         return '';
     }
 
+    $lango = pll_current_language();
+
     $output = '<div class="tf-product-info-countdown">';
     $output .= '<div class="countdown-title">';
-    $output .= '<h5>Hurry up</h5>';
-    $output .= '<p class="text-main">offer ends in:</p>';
+    $output .= $lango == 'ar' ? '<h5>أسرع</h5>' : '<h5>Hurry up</h5>';
+    $output .= $lango == 'ar' ? '<p class="text-main">العرض ينتهي في:</p>' : '<p class="text-main">offer ends in:</p>';
     $output .= '</div>';
     $output .= '<div class="tf-countdown style-1">';
     $output .= '<div class="js-countdown" data-timer="' . esc_attr($seconds_remaining) . '" data-labels="Days,Hours,Mins,Secs"></div>';
@@ -219,6 +267,7 @@ function get_related_products($product, $limit = 8)
 // Function to display related products
 function display_related_products($product)
 {
+    $lango = pll_current_language();
     $related_products = get_related_products($product);
 
     if (empty($related_products)) {
@@ -227,8 +276,8 @@ function display_related_products($product)
 
     $output = '<section class="flat-spacing-3 pt-0 mt-5">';
     $output .= '<div class="container">';
-    $output .= '<h1 class="sect-title text-center">Related Products</h1>';
-    $output .= '<div dir="ltr" class="swiper tf-swiper wrap-sw-over" data-preview="4" data-tablet="3" data-mobile-sm="2" data-mobile="2" data-space-lg="48" data-space-md="30" data-space="12" data-pagination="2" data-pagination-sm="2" data-pagination-md="3" data-pagination-lg="4">';
+    $output .= $lango == 'ar' ? '<h1 class="sect-title text-center">منتجات ذات صلة</h1>' : '<h1 class="sect-title text-center">Related Products</h1>';
+    $output .= '<div dir="' . ($lango == 'ar' ? 'rtl' : 'ltr') . '" class="swiper tf-swiper wrap-sw-over" data-preview="4" data-tablet="3" data-mobile-sm="2" data-mobile="2" data-space-lg="48" data-space-md="30" data-space="12" data-pagination="2" data-pagination-sm="2" data-pagination-md="3" data-pagination-lg="4">';
     $output .= '<div class="swiper-wrapper">';
 
     foreach ($related_products as $related_post) {
@@ -357,6 +406,8 @@ function display_related_products($product)
 
     return $output;
 }
+
+
 ?>
 
 <div class="woocommerce-notices-wrapper">
@@ -406,16 +457,20 @@ function display_related_products($product)
                                             foreach ($attachment_ids as $attachment_id) {
                                                 $image_url = wp_get_attachment_image_url($attachment_id, 'woocommerce_single');
                                                 $full_image_url = wp_get_attachment_image_url($attachment_id, 'full');
+
+                                                // $hover_image = wp_get_attachment_image_src($attachment_id, 'medium');
                                                 ?>
                                                 <div class="swiper-slide">
+
                                                     <a href="<?php echo esc_url($full_image_url); ?>" target="_blank"
                                                         class="item">
-                                                        <img class="tf-image-zoom ls-is-cached lazyload"
+                                                        <img class="tf-image-zoom img-product ls-is-cached lazyload"
                                                             data-zoom="<?php echo esc_url($full_image_url); ?>"
                                                             data-src="<?php echo esc_url($image_url); ?>"
                                                             src="<?php echo esc_url($image_url); ?>"
                                                             alt="<?php echo esc_attr($product->get_name()); ?>">
                                                     </a>
+
                                                 </div>
                                                 <?php
                                             }
@@ -445,7 +500,7 @@ function display_related_products($product)
                                 <?php if ($product->is_in_stock()): ?>
                                     <div class="people-add text-primary">
                                         <i class="icon icon-shopping-cart-simple"></i>
-                                        <span class="h6">In Stock - Ready to Ship</span>
+                                        <span class="h6"><?= $lango == 'ar' ? 'متاح' : 'In Stock' ?></span>
                                     </div>
                                 <?php endif; ?>
                             </div>
@@ -458,13 +513,216 @@ function display_related_products($product)
                         </div>
 
                         <!-- Live View Counter -->
-                        <div class="tf-product-info-liveview">
+                        <div class="tf-product-info-liveview d-none">
                             <div class="liveview-count">
                                 <i class="icon icon-view"></i>
                                 <span class="count fw-6 h6" id="live-viewer-count">0</span>
                             </div>
-                            <p class="fw-6 h6">People are viewing this right now</p>
+                            <p class="fw-6 h6">
+                                <?= $lango == 'ar' ? 'عدد المشاهدين الآن' : 'People are viewing this right now' ?>
+                            </p>
                         </div>
+
+                        <div class="tf-product-variant mt-4">
+
+                            <div class="variant-picker-item variant-size">
+                                        <div class="variant-picker-label">
+                                            <div class="h4 fw-semibold">
+                                                <?php echo $lango == 'ar' ? 'الحجم' : 'Size'; ?>
+                                            </div>
+
+                                        </div>
+                                        <div class="variant-picker-values">
+                                        <?php if (have_rows('product_size2', $product->get_id())):
+                                            while (have_rows('product_size2', $product->get_id())):
+                                                the_row();
+                                                $size_name = get_sub_field('size_name');
+                                                $size_code = get_sub_field('size_code');
+                                                $size_link = get_sub_field('link');
+
+                                                $linkurl = $size_link->guid;
+                                                ?>
+                                        
+                                            <!-- <span class="size-btn <?php //echo $size_link->guid? 'd-none' : 'active'; ?>"
+                                                data-size="<?php //echo $size_code; ?>"><?php //echo $size_code; ?></span> -->
+
+                                        
+                                                <a href="<?php echo $linkurl; ?>" class="size-btn"
+                                                    data-size="<?php echo $size_code; ?>"><?php echo $size_code; ?></a>
+                                   
+                                            <?php endwhile; endif; ?>
+                            </div>
+                                    </div>
+
+                            <?php
+                            // التحقق من وجود ألوان المنتج
+                            if (have_rows('product_attributes3', $product->get_id())): ?>
+                                <div class="variant-picker-item variant-color"
+                                    data-product-id="<?php echo $product->get_id(); ?>">
+                                    <div class="variant-picker-label">
+                                        <div class="h4 fw-semibold">
+                                            <?php echo $lango == 'ar' ? 'اللون' : 'Color'; ?>
+                                            <span class="variant-picker-label-value value-currentColor">blue</span>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="variant-picker-values">
+
+                                        <?php
+                                        $color_index = 0;
+                                        while (have_rows('product_attributes3', $product->get_id())):
+                                            the_row();
+                                            $color_name = get_sub_field('color_name');
+                                            $color_code = get_sub_field('color_code'); // كود اللون (هيكس)
+                                            $color_image = get_sub_field('color_image'); // صورة اللون
+                                    
+                                            // الحصول على رابط الصورة
+                                            $color_image_url = '';
+                                            if ($color_image) {
+                                                if (is_array($color_image)) {
+                                                    $color_image_url = $color_image['url'];
+                                                } else {
+                                                    $attachment_url = wp_get_attachment_image_src($color_image, 'medium');
+                                                    $color_image_url = $attachment_url ? $attachment_url[0] : '';
+                                                }
+                                            }
+
+                                            $is_active = $color_index === 0 ? 'active' : '';
+                                            $display_color = $color_code ? $color_code : $color_name;
+                                            ?>
+
+                                            <div class="hover-tooltip tooltip-bot color-btn <?php echo $is_active; ?> color-image-<?php echo $product->get_id(); ?>"
+                                                data-product-id="<?php echo $product->get_id(); ?>"
+                                                data-color-image="<?php echo esc_url($color_image_url); ?>"
+                                                data-color-name="<?php echo esc_attr($color_name); ?>"
+                                                data-color-index="<?php echo $color_index; ?>">
+                                                <span class="check-color"
+                                                    style="background-color: <?php echo esc_attr($display_color); ?>;"></span>
+                                                <span class="tooltip"><?php echo esc_attr($color_name); ?></span>
+                                            </div>
+
+                                            <?php
+                                        endwhile;
+                                        ?>
+                                    </div>
+                                </div>
+
+                            <?php endif; ?>
+                        </div>
+
+                        <script>
+                            jQuery(function ($) {
+                                // 1) لو عندك سوايبر معمول قبل كده سيبه زي ما هو.
+                                //    هنا بس بنمسك السوايبر الأساسي والثامبنيلز لو محتاجينهم
+                                //    (لو أسماء الـ selectors مختلفة عندك عدّلها)
+                                const $mainSwiperEl = $('.tf-product-media-main');      // السوايبر الكبير
+                                const $thumbsSwiperEl = $('.tf-product-media-thumbs');  // سوايبر الصور الجانبية (الثامبنيلز)
+
+                                // 2) خزّن الصور الأصلية لمرة واحدة عشان نعرف نرجّعها
+                                function cacheOriginals() {
+                                    $mainSwiperEl.find('.img-product').each(function () {
+                                        const $img = $(this);
+                                        if (!$img.data('orig-saved')) {
+                                            $img.attr('data-orig-src', $img.attr('src') || '');
+                                            $img.attr('data-orig-dsrc', $img.attr('data-src') || '');
+                                            $img.attr('data-orig-zoom', $img.attr('data-zoom') || '');
+                                            $img.data('orig-saved', true);
+                                        }
+                                    });
+                                }
+                                cacheOriginals();
+
+                                // 3) دالة تبديل الصورة لصورة اللون (مع تحديث data-zoom لو بتستعمل زووم)
+                                function showColorImage($btn) {
+                                    const colorImage = $btn.data('color-image');
+                                    const colorName = $btn.data('color-name') || '';
+
+                                    if (!colorImage) return;
+
+                                    // حدّث الليبل
+                                    $('.value-currentColor').text(colorName);
+
+                                    // وقّف أوتوپلاي لو شغّال (اختياري)
+                                    try {
+                                        if (window.galleryMainSwiper && window.galleryMainSwiper.autoplay) {
+                                            window.galleryMainSwiper.autoplay.stop();
+                                        }
+                                    } catch (e) { }
+
+                                    // بدّل كل الصور الظاهرة في السلايد النشط (لو أكتر من إيمج بنفس السلايد)
+                                    const $activeSlide = $mainSwiperEl.find('.swiper-slide-active, .swiper-slide:eq(0)');
+                                    $activeSlide.find('.img-product').each(function () {
+                                        const $img = $(this);
+                                        $img.attr('src', colorImage);
+                                        $img.attr('data-src', colorImage);
+                                        $img.attr('data-zoom', colorImage);
+                                    });
+
+                                    // لو عندك لايزي لود، أجبره يحدث
+                                    $activeSlide.find('img[data-src]').each(function () {
+                                        const $img = $(this);
+                                        if ($img.hasClass('lazyload')) {
+                                            // الليزي لود هيتعامل مع data-src وحده، لكن لضمان التحديث:
+                                            $img.attr('src', $img.attr('data-src'));
+                                        }
+                                    });
+                                }
+
+                                // 4) دالة إرجاع الصور الأصلية وتشغيل السوايبر تاني
+                                function restoreOriginalImages() {
+                                    // رجّع الليبل القديم (اختياري)
+                                    $('.value-currentColor').text('');
+
+                                    $mainSwiperEl.find('.img-product').each(function () {
+                                        const $img = $(this);
+                                        const osrc = $img.attr('data-orig-src') || '';
+                                        const odsrc = $img.attr('data-orig-dsrc') || '';
+                                        const ozoom = $img.attr('data-orig-zoom') || osrc;
+
+                                        if (osrc) $img.attr('src', osrc);
+                                        if (odsrc) $img.attr('data-src', odsrc); else $img.removeAttr('data-src');
+                                        if (ozoom) $img.attr('data-zoom', ozoom); else $img.removeAttr('data-zoom');
+                                    });
+
+                                    // شغّل الأوتوپلاي تاني لو كان موجود
+                                    try {
+                                        if (window.galleryMainSwiper && window.galleryMainSwiper.autoplay) {
+                                            window.galleryMainSwiper.autoplay.start();
+                                        }
+                                    } catch (e) { }
+
+                                    // أحيانًا بنحتاج نعمل update للسوايبر بعد ما رجّعنا الصور
+                                    try {
+                                        if (window.galleryMainSwiper && window.galleryMainSwiper.update) {
+                                            window.galleryMainSwiper.update();
+                                        }
+                                        if (window.galleryThumbsSwiper && window.galleryThumbsSwiper.update) {
+                                            window.galleryThumbsSwiper.update();
+                                        }
+                                    } catch (e) { }
+                                }
+
+                                // 5) أحداث الهوفر على الأزرار
+                                $(document).on('mouseenter', '.variant-color .color-btn', function () {
+                                    cacheOriginals();          // تأكيد إن الأصلي متخزّن
+                                    showColorImage($(this));   // اعرض صورة اللون
+                                });
+
+                                // 6) أول ما تبعد الماوس عن منطقة الألوان كلها، رجّع الأصلي
+                                //    (مش بس الزرار نفسه — المنطقة كلها)
+                                $(document).on('mouseleave', '.variant-picker-item.variant-color', function () {
+                                    restoreOriginalImages();
+                                });
+
+                                // 7) كمان لو حد لمس الثامبنيلز بعد ما معاين لون
+                                //    اعتبره رجوع للوضع الطبيعي
+                                $thumbsSwiperEl.on('click', '.swiper-slide', function () {
+                                    restoreOriginalImages();
+                                });
+                            });
+
+                        </script>
 
                         <!-- Size Selection -->
                         <?php
@@ -483,7 +741,7 @@ function display_related_products($product)
                                     <div class="variant-picker-item variant-size">
                                         <div class="variant-picker-label">
                                             <div class="h4 fw-semibold">
-                                                Size
+                                                <?php echo $lango == 'ar' ? 'الحجم' : 'Size'; ?>
                                                 <span
                                                     class="variant-picker-label-value value-currentSize"><?php echo esc_html($terms[0]); ?></span>
                                             </div>
@@ -636,11 +894,11 @@ function display_related_products($product)
                         <div class="tf-product-extra-link">
                             <a href="#" class="product-extra-icon link" data-bs-toggle="modal"
                                 data-bs-target="#shipAndDelivery">
-                                <i class="icon icon-truck"></i>Delivery & Return
+                                <i class="icon icon-truck"></i><?php echo $lango == 'ar' ? 'الشحن' : 'Delivery'; ?>
                             </a>
                             <a href="#" class="btn-share product-extra-icon link share-product"
                                 onclick="shareProduct(event)">
-                                <i class="icon icon-share"></i>Share
+                                <i class="icon icon-share"></i><?php echo $lango == 'ar' ? 'مشاركة' : 'Share'; ?>
                             </a>
                         </div>
 
@@ -650,7 +908,7 @@ function display_related_products($product)
                                 <div class="icon icon-clock-cd"></div>
                                 <?php $notes = get_field('delivery_notes'); ?>
                                 <?php if (empty($notes)): ?>
-                                    <h6>Empty Field</h6>
+                                    <h6><?php echo $lango == 'ar' ? 'حقول فارغة' : 'Empty Field'; ?></h6>
                                 <?php else: ?>
                                     <p class="h6"><?php echo esc_html($notes); ?></p>
                                 <?php endif; ?>
@@ -658,14 +916,14 @@ function display_related_products($product)
                             </div>
                             <div class="product-delivery return">
                                 <div class="icon icon-compare"></div>
-                                <p class="h6">Return within <span class="fw-7 text-black">30 days</span> of purchase.
-                                    Duties & taxes are non-refundable.</p>
+                                <p class="h6"><?php echo $lango == 'ar' ? 'العودة' : 'Return'; ?> <span class="fw-7 text-black"><?php echo $lango == 'ar' ? '30 يوما' : '30 days'; ?></span> <?php echo $lango == 'ar' ? 'الشراء' : 'of purchase'; ?>.
+                                    <?php echo $lango == 'ar' ? 'الضريبة' : 'Duties & taxes'; ?> <?php echo $lango == 'ar' ? 'لا ترد' : 'are non-refundable'; ?>.</p>
                             </div>
                         </div>
 
                         <!-- Trust Seals -->
                         <div class="tf-product-trust-seal">
-                            <p class="h6 text-seal">Guarantee Safe Checkout:</p>
+                            <p class="h6 text-seal"><?php echo $lango == 'ar' ? 'ضمان الدفع الآمن:' : 'Guarantee Safe Checkout:'; ?></p>
                             <ul class="list-card">
                                 <li class="card-item">
                                     <img src="<?php echo get_template_directory_uri(); ?>/assets/images/payment/visa.png"
@@ -710,10 +968,10 @@ function display_related_products($product)
             <div class="flat-animate-tab tab-style-1">
                 <ul class="menu-tab menu-tab-1" role="tablist">
                     <li class="nav-tab-item" role="presentation">
-                        <a href="#descriptions" class="tab-link active" data-bs-toggle="tab">Descriptions</a>
+                        <a href="#descriptions" class="tab-link active" data-bs-toggle="tab"><?php echo $lango == 'ar' ? 'وصف المنتج' : 'Product Description'; ?></a>
                     </li>
                     <li class="nav-tab-item" role="presentation">
-                        <a href="#policy" class="tab-link" data-bs-toggle="tab">Shipping, Return & Refund Policy</a>
+                        <a href="#policy" class="tab-link" data-bs-toggle="tab"><?php echo $lango == 'ar' ? 'سياسة الشحن والعودة والإرجاع' : 'Shipping, Return & Refund Policy'; ?></a>
                     </li>
                 </ul>
 
@@ -755,8 +1013,8 @@ function display_related_products($product)
                         <table class="table table-striped table-bordered">
                             <thead>
                                 <tr class="table-primary">
-                                    <th scope="col" class="fw-6">Products Attributes</th>
-                                    <th scope="col" class="fw-6">Value</th>
+                                    <th scope="col" class="fw-6"><?= $lango == 'ar' ? 'خصائص المنتج' : 'Products Attributes' ?></th>
+                                    <th scope="col" class="fw-6"><?= $lango == 'ar' ? 'القيمة' : 'Value' ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -842,7 +1100,7 @@ function display_related_products($product)
         <div class="container">
             <div class="sect-border">
                 <div class="s-head">
-                    <h3 class=" s-title fw-normal">The Fresh Clothes</h3>
+                    <h3 class=" s-title fw-normal"><?= $lango == 'ar' ? 'الملابس الحية' : 'The Fresh Clothes' ?></h3>
                 </div>
                 <div dir="ltr" class="swiper tf-swiper" data-preview="4" data-tablet="3" data-mobile-sm="2"
                     data-mobile="1" data-space-lg="97" data-space-md="33" data-space="13" data-pagination="1"
@@ -855,8 +1113,8 @@ function display_related_products($product)
                                     <i class="icon-package"></i>
                                 </span>
                                 <div class="content">
-                                    <h4 class="title fw-normal">30 days return</h4>
-                                    <p class="text">30 day money back guarantee</p>
+                                    <h4 class="title fw-normal"><?= $lango == 'ar' ? '30 يوماً للعودة' : '30 days return' ?></h4>
+                                    <p class="text"><?= $lango == 'ar' ? 'ضمان استرداد المال' : '30 day money back guarantee' ?></p>
                                 </div>
                             </div>
                         </div>
@@ -868,8 +1126,8 @@ function display_related_products($product)
                                     <i class="icon-calender"></i>
                                 </span>
                                 <div class="content">
-                                    <h4 class="title fw-normal">3 year warranty</h4>
-                                    <p class="text">Manufacturer's defect</p>
+                                    <h4 class="title fw-normal"><?= $lango == 'ar' ? 'ضمان 3 سنوات' : '3 year warranty' ?></h4>
+                                    <p class="text"><?= $lango == 'ar' ? 'ضمان العيوب المصنع' : 'Manufacturers defect' ?></p>
                                 </div>
                             </div>
                         </div>
@@ -881,8 +1139,8 @@ function display_related_products($product)
                                     <i class="icon-boat"></i>
                                 </span>
                                 <div class="content">
-                                    <h4 class="title fw-normal">Free shipping</h4>
-                                    <p class="text">Free Shipping for orders over $150</p>
+                                    <h4 class="title fw-normal"><?= $lango == 'ar' ? 'شحن مجاني' : 'Free shipping' ?></h4>
+                                    <p class="text"><?= $lango == 'ar' ? 'شحن مجاني' : 'Free Shipping for orders over $150' ?></p>
                                 </div>
                             </div>
                         </div>
@@ -893,8 +1151,8 @@ function display_related_products($product)
                                     <i class="icon-headset"></i>
                                 </span>
                                 <div class="content">
-                                    <h4 class="title fw-normal">Online support</h4>
-                                    <p class="text">24 hours a day, 7 days a week</p>
+                                    <h4 class="title fw-normal"><?= $lango == 'ar' ? 'دعم اونلاين' : 'Online support' ?></h4>
+                                    <p class="text"><?= $lango == 'ar' ? '24 ساعة في اليوم، 7 أيام في الأسبوع' : '24 hours a day, 7 days a week' ?></p>
                                 </div>
                             </div>
                         </div>
@@ -943,7 +1201,7 @@ box-icon hover-tooltip tooltip-left" data-quantity="1" data-product_id="<?php ec
                                 aria-label="<?php echo esc_attr(sprintf(__('Add “%s” to your cart', 'woocommerce'), $product->get_name())); ?>">
                                 <span class="icon icon-shopping-cart-simple me-2"></span>
                                 <span class="tooltip"><?php _e('Add to cart', 'textdomain'); ?></span>
-                                Add to cart
+                                <?php echo $lango == 'ar' ? 'إضافة إلى السلة' : 'Add to cart'; ?>
                             </a>
 
 

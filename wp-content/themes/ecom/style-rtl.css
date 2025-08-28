@@ -1,3 +1,44 @@
+.wp-singular .tinv-wishlist .tinvwl_add_to_wishlist_button.tinvwl-icon-heart.no-txt:before {
+    color: #FFF;
+}
+
+.wp-singular .tinv-wishlist .tinvwl_add_to_wishlist_button.tinvwl-icon-heart.no-txt {
+    background: #000 !important;
+    padding: 22px;
+    border-radius: 50%;
+}
+
+.page-template-cart .tf-btn.w-100 {
+    direction: ltr;
+}
+
+a.wishlist_products_counter.top_wishlist-heart-plus.no-txt, span.wishlist_products_counter.top_wishlist-heart-plus.no-txt {
+    position: relative;
+    width: 56px;
+    height: 50px;
+    vertical-align: sub;
+}
+
+.page-template-form-checkout .tf-select::after {
+    right: auto !important;
+    left: 24px !important;
+}
+
+.tinv-wishlist .tinvwl_add_to_wishlist_button.tinvwl-icon-heart.no-txt:hover {
+    background: #000 !important;
+}
+.tinv-wishlist .tinvwl_add_to_wishlist_button.tinvwl-icon-heart.no-txt:hover:before {
+    color: #FFF;
+}
+
+.page-template-form-checkout .tf-payment-body {
+    display: none;
+}
+
+.wp-singular .tf-btn .icon {
+    transform: unset !important;
+}
+
 /* 3. الستايل المطلوب */
 .search-container {
     position: relative;

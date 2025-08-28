@@ -40,12 +40,12 @@ get_header(); ?>
 <section class="s-page-title">
     <div class="container">
         <div class="content">
-            <h1 class="title-page">Checkout</h1>
+            <h1 class="title-page"><?= pll_current_language() == 'ar' ? 'الدفع' : 'Checkout' ?></h1>
             <ul class="breadcrumbs-page">
-                <li><a href="index.html" class="h6 link">Home</a></li>
+                <li><a href="<?= home_url(); ?>" class="h6 link"><?= pll_current_language() == 'ar' ? 'الرئيسية' : 'Home' ?></a></li>
                 <li class="d-flex"><i class="icon icon-caret-right"></i></li>
                 <li>
-                    <h6 class="current-page fw-normal">Checkout</h6>
+                    <h6 class="current-page fw-normal"><?= pll_current_language() == 'ar' ? 'الدفع' : 'Checkout' ?></h6>
                 </li>
             </ul>
         </div>
@@ -63,12 +63,12 @@ get_header(); ?>
                         <!-- Coupon Section -->
                         <?php if (wc_coupons_enabled()) : ?>
                         <div class="wrap-coupon">
-                            <h5 class="mb-12">Have a coupon? <span class="text-primary">Enter your code</span></h5>
+                            <h5 class="mb-12"><?= pll_current_language() == 'ar' ? 'هل لديك كوبون؟' : 'Have a coupon?' ?> <span class="text-primary"><?= pll_current_language() == 'ar' ? 'أدخل رمزك' : 'Enter your code' ?></span></h5>
                             <form class="tf-coupon-form" method="post">
                                 <div class="ip-discount-code mb-0">
-                                    <input type="text" name="coupon_code" placeholder="Enter your code" id="coupon_code" value="" class="tf-input" />
+                                    <input type="text" name="coupon_code" placeholder="<?= pll_current_language() == 'ar' ? 'أدخل رمزك' : 'Enter your code' ?>" id="coupon_code" value="" class="tf-input" />
                                     <button class="tf-btn animate-btn" type="submit" name="apply_coupon">
-                                        Apply Code
+                                        <?= pll_current_language() == 'ar' ? 'تطبيق الكوبون' : 'Apply Coupon' ?>
                                     </button>
                                 </div>
                                 <?php wp_nonce_field('woocommerce-coupon', 'woocommerce-coupon-nonce'); ?>
@@ -94,7 +94,7 @@ get_header(); ?>
 
                             <!-- Billing Information -->
                             <div class="box-ip-checkout estimate-shipping">
-                                <h2 class="title type-semibold">Information</h2>
+                                <h2 class="title type-semibold"><?= pll_current_language() == 'ar' ? 'معلومات الفاتورة' : 'Billing Information' ?></h2>
                                 <div class="form_content">
                                     
                                     <!-- Name Fields -->
@@ -103,7 +103,7 @@ get_header(); ?>
                                             <input type="text" 
                                                    id="billing_first_name" 
                                                    name="billing_first_name" 
-                                                   placeholder="First name" 
+                                                   placeholder="<?= pll_current_language() == 'ar' ? 'الاسم الأول' : 'First name' ?>" 
                                                    value="<?php echo esc_attr(WC()->checkout->get_value('billing_first_name')); ?>" 
                                                    class="tf-input" 
                                                    required />
@@ -112,7 +112,7 @@ get_header(); ?>
                                             <input type="text" 
                                                    id="billing_last_name" 
                                                    name="billing_last_name" 
-                                                   placeholder="Last name" 
+                                                   placeholder="<?= pll_current_language() == 'ar' ? 'الاسم الأخير' : 'Last name' ?>" 
                                                    value="<?php echo esc_attr(WC()->checkout->get_value('billing_last_name')); ?>" 
                                                    class="tf-input" 
                                                    required />
@@ -125,7 +125,7 @@ get_header(); ?>
                                             <input type="email" 
                                                    id="billing_email" 
                                                    name="billing_email" 
-                                                   placeholder="Email address" 
+                                                   placeholder="<?= pll_current_language() == 'ar' ? 'البريد الالكتروني' : 'Email address' ?>" 
                                                    value="<?php echo esc_attr(WC()->checkout->get_value('billing_email')); ?>" 
                                                    class="tf-input" 
                                                    required />
@@ -134,7 +134,7 @@ get_header(); ?>
                                             <input type="tel" 
                                                    id="billing_phone" 
                                                    name="billing_phone" 
-                                                   placeholder="Phone number" 
+                                                   placeholder="<?= pll_current_language() == 'ar' ? 'رقم الهاتف' : 'Phone number' ?>" 
                                                    value="<?php echo esc_attr(WC()->checkout->get_value('billing_phone')); ?>" 
                                                    class="tf-input" 
                                                    required />
@@ -165,7 +165,7 @@ get_header(); ?>
                                                     name="billing_state" 
                                                     class="tf-select" 
                                                     required>
-                                                <option value="">اختر المنطقة...</option>
+                                                <option value=""><?= pll_current_language() == 'ar' ? 'اختر المنطقة' : 'Choose region' ?></option>
                                                 <?php
                                                 $states = WC()->countries->get_states('SA');
                                                 $selected_state = WC()->checkout->get_value('billing_state');
@@ -182,7 +182,7 @@ get_header(); ?>
                                                     name="billing_city_custom" 
                                                     class="tf-select" 
                                                     required>
-                                                <option value="">اختر المدينة...</option>
+                                                <option value=""><?= pll_current_language() == 'ar' ? 'اختر المدينة' : 'Choose city' ?></option>
                                             </select>
                                         </fieldset>
                                     </div>
@@ -192,7 +192,7 @@ get_header(); ?>
                                         <input type="text" 
                                                id="billing_address_1" 
                                                name="billing_address_1" 
-                                               placeholder="Street Address" 
+                                               placeholder="<?= pll_current_language() == 'ar' ? 'العنوان' : 'Street Address' ?>" 
                                                value="<?php echo esc_attr(WC()->checkout->get_value('billing_address_1')); ?>" 
                                                class="tf-input" 
                                                required />
@@ -203,7 +203,7 @@ get_header(); ?>
                                         <input type="text" 
                                                id="billing_postcode" 
                                                name="billing_postcode" 
-                                               placeholder="Postal code" 
+                                               placeholder="<?= pll_current_language() == 'ar' ? 'الرمز البريدي' : 'Postal code' ?>" 
                                                value="<?php echo esc_attr(WC()->checkout->get_value('billing_postcode')); ?>" 
                                                class="tf-input" 
                                                required />
@@ -216,7 +216,7 @@ get_header(); ?>
                                     <fieldset class="tf-fieldset">
                                         <textarea id="order_comments" 
                                                   name="order_comments" 
-                                                  placeholder="Note about your order" 
+                                                  placeholder="<?= pll_current_language() == 'ar' ? 'ملاحظة عن الطلب' : 'Note about your order' ?>" 
                                                   class="tf-textarea notes" 
                                                   style="height: 180px;"><?php echo esc_textarea(WC()->checkout->get_value('order_comments')); ?></textarea>
                                     </fieldset>
@@ -227,7 +227,7 @@ get_header(); ?>
 
                             <!-- Payment Methods -->
                             <div class="box-ip-payment">
-                                <h2 class="title type-semibold">Choose Payment Option</h2>
+                                <h2 class="title type-semibold"><?= pll_current_language() == 'ar' ? 'اختر طريقة الدفع' : 'Choose Payment Option' ?></h2>
                                 
                                 <?php if (WC()->payment_gateways->get_available_payment_gateways()) : ?>
                                 <div class="tf-payment-methods" id="tf-payment-methods">
@@ -286,7 +286,7 @@ get_header(); ?>
                                 <?php endif; ?>
 
                                 <p class="h6 mb-20">
-                                    Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our privacy policy.
+                                    <?= pll_current_language() == 'ar' ? 'بياناتك الشخصية سيتم استخدامها لمعالجة طلبك، دعم تجربتك خلال هذا الموقع، و لغرض أخرى كما هو محدد في سياسة الخصوصية لدينا.' : 'Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our privacy policy.' ?>
                                 </p>
                                 
                                 <!-- Terms and Conditions -->
@@ -294,8 +294,8 @@ get_header(); ?>
                                 <div class="checkbox-wrap">
                                     <input type="checkbox" class="tf-check style-2" name="terms" id="terms" />
                                     <label for="terms" class="checkbox h6">
-                                        I have read and agree to the website 
-                                        <a href="<?php echo esc_url(wc_get_page_permalink('terms')); ?>" class="text-primary" target="_blank">terms and conditions</a> *
+                                        <?= pll_current_language() == 'ar' ? 'أنا قرأت و أتفق على الشروط والأحكام' : 'I have read and agree to the website' ?>
+                                        <a href="<?php echo esc_url(wc_get_page_permalink('terms')); ?>" class="text-primary" target="_blank"><?= pll_current_language() == 'ar' ? 'الشروط والأحكام' : 'terms and conditions' ?></a> *
                                     </label>
                                     <input type="hidden" name="terms-field" value="1" />
                                 </div>
@@ -305,7 +305,7 @@ get_header(); ?>
                             <!-- Shipping Methods -->
                             <?php if (WC()->cart->needs_shipping() && WC()->cart->show_shipping()) : ?>
                             <div class="box-ip-shipping">
-                                <h2 class="title type-semibold">Shipping Method</h2>
+                                <h2 class="title type-semibold"><?= pll_current_language() == 'ar' ? 'طريقة الشحن' : 'Shipping Method' ?></h2>
                                 
                                 <?php
                                 $packages = WC()->shipping->get_packages();
@@ -361,7 +361,7 @@ get_header(); ?>
                 <div class="col-lg-5">
                     <div class="fl-sidebar-cart sticky-top">
                         <div class="box-your-order">
-                            <h2 class="title type-semibold">Your Order</h2>
+                            <h2 class="title type-semibold"><?= pll_current_language() == 'ar' ? 'الإجمالي' : 'Your Order' ?></h2>
                             
                             <!-- Cart Items -->
                             <ul class="list-order-product">
@@ -396,14 +396,14 @@ get_header(); ?>
                             <ul class="list-total">
                                 <?php foreach (WC()->cart->get_coupons() as $code => $coupon) : ?>
                                 <li class="total-item h6">
-                                    <span class="fw-bold text-black">Discount (<?php echo esc_html($code); ?>)</span>
+                                    <span class="fw-bold text-black"><?= pll_current_language() == 'ar' ? 'الخصم' : 'Discount' ?> (<?php echo esc_html($code); ?>)</span>
                                     <span>-<?php wc_cart_totals_coupon_html($coupon); ?></span>
                                 </li>
                                 <?php endforeach; ?>
 
                                 <?php if (WC()->cart->needs_shipping() && WC()->cart->show_shipping()) : ?>
                                 <li class="total-item h6">
-                                    <span class="fw-bold text-black">Shipping</span>
+                                    <span class="fw-bold text-black"><?= pll_current_language() == 'ar' ? 'الشحن' : 'Shipping' ?></span>
                                     <span><?php 
                                         $shipping_total = WC()->cart->get_shipping_total();
                                         echo $shipping_total > 0 ? wc_price($shipping_total) : __('Free', 'woocommerce');
@@ -430,8 +430,8 @@ get_header(); ?>
 
                             <!-- Final Total -->
                             <div class="last-total h5 fw-medium text-black">
-                                <span>Total</span>
-                                <span><?php wc_cart_totals_order_total_html(); ?></span>
+                                <span><?= pll_current_language() == 'ar' ? 'الإجمالي' : 'Total' ?></span>
+                                <span><?php echo WC()->cart->get_cart_total(); ?></span>
                             </div>
                         </div>
                     </div>

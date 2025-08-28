@@ -1,48 +1,4 @@
 <?php
-// جلب المنتج الأعلى خصماً مع تاريخ انتهاء
-function get_highest_discount_product_with_timer() {
-    // الحصول على جميع المنتجات التي عليها خصم
-    $sale_product_ids = wc_get_product_ids_on_sale();
-    
-    if (empty($sale_product_ids)) {
-        return null;
-    }
-    
-    $highest_discount = 0;
-    $best_product = null;
-    $current_time = current_time('timestamp');
-    
-    foreach ($sale_product_ids as $product_id) {
-        $product = wc_get_product($product_id);
-        
-        if (!$product || !$product->is_on_sale()) {
-            continue;
-        }
-        
-        // التحقق من وجود تاريخ انتهاء للخصم
-        $sale_end_timestamp = get_post_meta($product_id, '_sale_price_dates_to', true);
-        
-        if (!$sale_end_timestamp || $sale_end_timestamp <= $current_time) {
-            continue; // تجاهل المنتجات بدون تاريخ انتهاء أو منتهية الصلاحية
-        }
-        
-        // حساب نسبة الخصم
-        $regular_price = (float) $product->get_regular_price();
-        $sale_price = (float) $product->get_sale_price();
-        
-        if ($regular_price > 0) {
-            $discount_percentage = (($regular_price - $sale_price) / $regular_price) * 100;
-            
-            if ($discount_percentage > $highest_discount) {
-                $highest_discount = $discount_percentage;
-                $best_product = $product;
-            }
-        }
-    }
-    
-    return $best_product;
-}
-
 /**
  * رجّع أعلى منتج (أو فاريشن) عليه خصم مع تايمر صالح، للغة معيّنة.
  * @param string $lang_slug مثال: 'ar' أو 'en'
@@ -174,98 +130,93 @@ function wcd_get_highest_discount_product_with_timer_by_lang($lang_slug)
   return $best_prod ?: null;
 }
 
-/**
- * هيلبر صغير يجيب العربي والإنجليزي مرة واحدة.
- * @return array ['ar' => WC_Product|WC_Product_Variation|null, 'en' => ...]
- */
-function wcd_get_highest_discount_products_both_langs()
-{
-  return [
-    'ar' => wcd_get_highest_discount_product_with_timer_by_lang('ar'),
-    'en' => wcd_get_highest_discount_product_with_timer_by_lang('en'),
-  ];
-}
+// الكود الرئيسي مع إخفاء السيكشن
+$lango = pll_current_language();
+$product = wcd_get_highest_discount_product_with_timer_by_lang($lango);
 
-$products = wcd_get_highest_discount_products_both_langs();
-
-$name_ara = $products['ar']->get_name();
-$name_eng = $products['en']->get_name();
-
-// استخدام الدالة
-$product = get_highest_discount_product_with_timer();
-
+// إخفاء السيكشن كاملاً إذا لم يتم العثور على منتج
 if ($product) {
-    $product_id = $product->get_id();
-    $sale_end_timestamp = get_post_meta($product_id, '_sale_price_dates_to', true);
-    
-    if ($sale_end_timestamp) {
-        $now = current_time('timestamp');
-        $seconds_remaining = $sale_end_timestamp - $now;
-        
-        // صورة المنتج
-        $image_url = get_the_post_thumbnail_url($product_id, '') ?: wc_placeholder_img_src();
-        
-        // السعر
-        $price_html = $product->get_price_html();
-        
-        // رابط المنتج
-        $link = get_permalink($product_id);
-        
-        // الاسم
-        $title = $product->get_name();
-        
-        // حساب نسبة الخصم للعرض
-        $regular_price = (float) $product->get_regular_price();
-        $sale_price = (float) $product->get_sale_price();
-        $discount_percentage = round((($regular_price - $sale_price) / $regular_price) * 100);
-?>
-<!-- Banner Countdown -->
-<div class="themesFlat">
-  <div class="container">
-    <div class="banner-cd_v02 wow fadeInUp">
-      <div class="banner_title">
-        <span class="icon">
-          <!-- أيقونة النار أو عرض -->
-          🔥
-        </span>
-        <h4 class="text-primary"><?php echo is_rtl() ? 'العرض ينتهي في:' : 'Hurry up offer ends in:'; ?> <span class="badge bg-danger"><?= $discount_percentage; ?>% <?php echo is_rtl() ? 'خصم' : 'OFF'; ?></span></h4>
-      </div>
+  $product_id = $product->get_id();
+  $sale_end_timestamp = get_post_meta($product_id, '_sale_price_dates_to', true);
 
-      <div class="count-down_v02">
-        <div class="js-countdown cd-has-zero" data-timer="<?= esc_attr($seconds_remaining); ?>" data-labels="Days,Hours,Mins,Secs"></div>
-      </div>
+  if ($sale_end_timestamp) {
+    $now = current_time('timestamp');
+    $seconds_remaining = $sale_end_timestamp - $now;
 
-      <!-- Product Display Section -->
-      <div class="product-showcase mt-4">
-        <div class="product-image-container">
-          <a href="<?= esc_url($link); ?>" class="product-image-link">
-            <img src="<?= esc_url($image_url); ?>" alt="<?= esc_attr($title); ?>" class="product-image lazyload" />
-            <div class="discount-badge">
-              <span><?= $discount_percentage; ?>%</span>
-              <small><?php echo is_rtl() ? 'خصم' : 'OFF'; ?></small>
+    // التأكد من أن التايمر لم ينته
+    if ($seconds_remaining > 0) {
+      // صورة المنتج
+      $image_url = get_the_post_thumbnail_url($product_id, '') ?: wc_placeholder_img_src();
+
+      // السعر
+      $price_html = $product->get_price_html();
+
+      // رابط المنتج
+      $link = get_permalink($product_id);
+
+      // الاسم
+      $title = $product->get_name();
+
+      // حساب نسبة الخصم للعرض
+      $regular_price = (float) $product->get_regular_price();
+      $sale_price = (float) $product->get_sale_price();
+      $discount_percentage = round((($regular_price - $sale_price) / $regular_price) * 100);
+      ?>
+      <!-- Banner Countdown - يظهر فقط عند وجود منتج بخصم صالح -->
+      <div class="themesFlat countdown-banner-section">
+        <div class="container">
+          <div class="banner-cd_v02 wow fadeInUp">
+            <div class="banner_title">
+              <span class="icon">🔥</span>
+              <h4 class="text-primary">
+                <?php echo $lango == 'ar' ? 'العرض ينتهي في:' : 'Hurry up offer ends in:'; ?>
+                <span class="badge bg-danger"><?= $discount_percentage; ?>%
+                  <?php echo $lango == 'ar' ? 'خصم' : 'OFF'; ?></span>
+              </h4>
             </div>
-          </a>
-        </div>
-        
-        <div class="product-details">
-          <div class="product-title">
-            <h3><a href="<?= esc_url($link); ?>" class="title-link"><?= $lang == 'ar' ? $name_ara : $name_eng; ?></a></h3>
-          </div>
-          
-          <div class="product-price">
-            <?= $price_html; ?>
-          </div>
-          
-          <div class="product-action">
-            <a href="<?= esc_url($link); ?>" class="shop-now-btn">
-              <span>Shop Now</span>
-              <i class="arrow">→</i>
-            </a>
+
+            <div class="count-down_v02">
+              <div class="js-countdown cd-has-zero" data-timer="<?= esc_attr($seconds_remaining); ?>"
+                data-labels="Days,Hours,Mins,Secs"></div>
+            </div>
+
+            <div class="product-showcase mt-4">
+              <div class="product-image-container">
+                <a href="<?= esc_url($link); ?>" class="product-image-link">
+                  <img src="<?= esc_url($image_url); ?>" alt="<?= esc_attr($title); ?>" class="product-image lazyload" />
+                  <div class="discount-badge">
+                    <span><?= $discount_percentage; ?>%</span>
+                    <small><?php echo $lango == 'ar' ? 'خصم' : 'OFF'; ?></small>
+                  </div>
+                </a>
+              </div>
+
+              <div class="product-details">
+                <div class="product-title">
+                  <h3><a href="<?= esc_url($link); ?>" class="title-link"><?= esc_html($title); ?></a></h3>
+                </div>
+
+                <div class="product-price">
+                  <?= $price_html; ?>
+                </div>
+
+                <div class="product-action">
+                  <a href="<?= esc_url($link); ?>" class="shop-now-btn">
+                    <span><?php echo $lango == 'ar' ? 'تسوق الآن' : 'Shop Now'; ?></span>
+                    <i class="arrow">→</i>
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <style>
+        .countdown-banner-section {
+          display: block;
+        }
+
         .product-showcase {
           display: flex;
           align-items: center;
@@ -273,40 +224,40 @@ if ($product) {
           padding: 20px;
           background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
           border-radius: 20px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
           transition: transform 0.3s ease;
         }
-        
+
         .product-showcase:hover {
           transform: translateY(-5px);
         }
-        
+
         .product-image-container {
           position: relative;
           flex-shrink: 0;
         }
-        
+
         .product-image-link {
           display: block;
           width: 180px;
           height: 180px;
           border-radius: 15px;
           overflow: hidden;
-          box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
           transition: transform 0.3s ease;
         }
-        
+
         .product-image-link:hover {
           transform: scale(1.05);
         }
-        
+
         .product-image {
           width: 100%;
           height: 100%;
           object-fit: cover;
           transition: transform 0.3s ease;
         }
-        
+
         .discount-badge {
           position: absolute;
           top: -10px;
@@ -318,61 +269,69 @@ if ($product) {
           font-weight: bold;
           font-size: 14px;
           text-align: center;
-          box-shadow: 0 4px 15px rgba(255,107,107,0.4);
+          box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
           animation: pulse 2s infinite;
         }
-        
+
         .discount-badge small {
           display: block;
           font-size: 10px;
           margin-top: -2px;
         }
-        
+
         @keyframes pulse {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.1); }
-          100% { transform: scale(1); }
+          0% {
+            transform: scale(1);
+          }
+
+          50% {
+            transform: scale(1.1);
+          }
+
+          100% {
+            transform: scale(1);
+          }
         }
-        
+
         .product-details {
           flex: 1;
         }
-        
+
         .product-title h3 {
           font-size: 28px;
           font-weight: 700;
           margin-bottom: 15px;
           line-height: 1.3;
         }
-        
+
         .title-link {
           color: #2c3e50;
           text-decoration: none;
           transition: color 0.3s ease;
         }
-        
+
         .title-link:hover {
           color: #3498db;
         }
-        
+
         .product-price {
           margin-bottom: 20px;
           font-size: 24px;
           font-weight: 600;
         }
-        
+
         .product-price del {
           color: #95a5a6;
           font-size: 18px;
           margin-right: 10px;
         }
-        
+
         .product-price ins {
           color: #e74c3c;
           text-decoration: none;
           font-weight: 700;
         }
-        
+
         .shop-now-btn {
           display: inline-flex;
           align-items: center;
@@ -385,50 +344,148 @@ if ($product) {
           font-weight: 600;
           font-size: 16px;
           transition: all 0.3s ease;
-          box-shadow: 0 4px 15px rgba(52,152,219,0.3);
+          box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
         }
-        
+
         .shop-now-btn:hover {
           background: linear-gradient(45deg, #2980b9, #3498db);
           transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(52,152,219,0.4);
+          box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
           color: white;
         }
-        
+
         .arrow {
           transition: transform 0.3s ease;
         }
-        
+
         .shop-now-btn:hover .arrow {
           transform: translateX(5px);
         }
-        
-        /* Responsive */
+
         @media (max-width: 768px) {
           .product-showcase {
             flex-direction: column;
             text-align: center;
             gap: 20px;
           }
-          
+
           .product-image-link {
             width: 150px;
             height: 150px;
           }
-          
+
           .product-title h3 {
             font-size: 24px;
           }
-          
+
           .product-price {
             font-size: 20px;
           }
         }
+
+        /* إخفاء السيكشن عند عدم وجود منتج */
+        .countdown-banner-hidden {
+          display: none !important;
+        }
       </style>
+
+      <?php
+    } // end if seconds_remaining > 0
+  } // end if sale_end_timestamp
+} // end if product exists
+
+// إذا لم يتم العثور على منتج صالح، لا نعرض أي شيء
+// السيكشن سيكون مخفي تلقائياً
+?>
+
+<?php
+/**
+ * دالة بديلة لعرض السيكشن مع فحص شامل
+ */
+function display_countdown_banner_section()
+{
+  $lango = pll_current_language();
+  $product = wcd_get_highest_discount_product_with_timer_by_lang($lango);
+
+  // لا تعرض شيء إذا لم يتم العثور على منتج
+  if (!$product) {
+    return; // إخفاء السيكشن كاملاً
+  }
+
+  $product_id = $product->get_id();
+  $sale_end_timestamp = get_post_meta($product_id, '_sale_price_dates_to', true);
+
+  if (!$sale_end_timestamp) {
+    return; // إخفاء السيكشن إذا لم يكن هناك تايمر
+  }
+
+  $now = current_time('timestamp');
+  $seconds_remaining = $sale_end_timestamp - $now;
+
+  if ($seconds_remaining <= 0) {
+    return; // إخفاء السيكشن إذا انتهى الوقت
+  }
+
+  // عرض السيكشن فقط إذا كان كل شيء صحيح
+  $image_url = get_the_post_thumbnail_url($product_id, '') ?: wc_placeholder_img_src();
+  $price_html = $product->get_price_html();
+  $link = get_permalink($product_id);
+  $title = $product->get_name();
+
+  $regular_price = (float) $product->get_regular_price();
+  $sale_price = (float) $product->get_sale_price();
+  $discount_percentage = round((($regular_price - $sale_price) / $regular_price) * 100);
+
+  ?>
+  <!-- Banner Countdown - يظهر فقط عند توفر منتج صالح -->
+  <div class="themesFlat countdown-banner-section">
+    <div class="container">
+      <div class="banner-cd_v02 wow fadeInUp">
+        <div class="banner_title">
+          <span class="icon">🔥</span>
+          <h4 class="text-primary">
+            <?php echo $lango == 'ar' ? 'العرض ينتهي في:' : 'Hurry up offer ends in:'; ?>
+            <span class="badge bg-danger"><?= $discount_percentage; ?>%
+              <?php echo $lango == 'ar' ? 'خصم' : 'OFF'; ?></span>
+          </h4>
+        </div>
+
+        <div class="count-down_v02">
+          <div class="js-countdown cd-has-zero" data-timer="<?= esc_attr($seconds_remaining); ?>"
+            data-labels="Days,Hours,Mins,Secs"></div>
+        </div>
+
+        <div class="product-showcase mt-4">
+          <div class="product-image-container">
+            <a href="<?= esc_url($link); ?>" class="product-image-link">
+              <img src="<?= esc_url($image_url); ?>" alt="<?= esc_attr($title); ?>" class="product-image lazyload" />
+              <div class="discount-badge">
+                <span><?= $discount_percentage; ?>%</span>
+                <small><?php echo $lango == 'ar' ? 'خصم' : 'OFF'; ?></small>
+              </div>
+            </a>
+          </div>
+
+          <div class="product-details">
+            <div class="product-title">
+              <h3><a href="<?= esc_url($link); ?>" class="title-link"><?= esc_html($title); ?></a></h3>
+            </div>
+
+            <div class="product-price">
+              <?= $price_html; ?>
+            </div>
+
+            <div class="product-action">
+              <a href="<?= esc_url($link); ?>" class="shop-now-btn">
+                <span><?php echo $lango == 'ar' ? 'تسوق الآن' : 'Shop Now'; ?></span>
+                <i class="arrow">→</i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-</div>
-<?php
-    }
+  <?php
 }
 ?>
