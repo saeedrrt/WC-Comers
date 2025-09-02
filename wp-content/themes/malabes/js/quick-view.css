@@ -1,0 +1,119 @@
+/* ملف quick-view.css - ضعه في مجلد css في الثيم */
+
+/* زر Quick View */
+.quick-view-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50px;
+    padding: 8px 15px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(-10px);
+    z-index: 10;
+}
+
+.product:hover .quick-view-btn,
+.product-item:hover .quick-view-btn {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.quick-view-btn:hover {
+    background: #007cff;
+    color: white;
+    transform: scale(1.05);
+}
+
+.quick-view-btn i {
+    margin-right: 5px;
+}
+
+/* Modal Styles */
+.modal-quick-view {
+    z-index: 9999;
+}
+
+.modal-quick-view .modal-dialog {
+    max-width: 90%;
+    width: 1000px;
+}
+
+.modal-quick-view .modal-content {
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.modal-quick-view .modal-content {
+    display: flex;
+    flex-direction: row;
+    min-height: 600px;
+}
+
+/* زر الإغلاق */
+.icon-close-popup {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.3s ease;
+    font-size: 20px;
+    color: #333;
+}
+
+.icon-close-popup:hover {
+    background: #ff4757;
+    color: white;
+    transform: rotate(90deg);
+}
+
+/* Loading Spinner */
+.modal-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 50;
+}
+
+.modal-loading .spinner-border {
+    width: 3rem;
+    height: 3rem;
+    color: #007cff;
+}
+
+/* تخطيط المحتوى */
+.modal-body-content {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.tf-product-media-wrap {
+    flex: 1;
+    background: #f8f9fa;
+    position: relative;
+}
+
+.tf-product-info-wrap {
+    flex: 1;
+    padding: 40px;
+    background: #fff;   
+}

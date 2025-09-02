@@ -191,6 +191,11 @@ add_filter('body_class', 'add_custom_body_class');
 // add_action( 'wp_enqueue_scripts', 'enqueue_custom_ajax_search_script' );
 
 
+// require_once get_template_directory() . '/inc/ProductTypeConfigurator.php';
+// add_action('after_setup_theme', function () {
+// 	\Glitch\Woo\ProductTypeConfigurator::boot();
+// });
+
 /**
  * Implement the Custom Header feature.
  */
