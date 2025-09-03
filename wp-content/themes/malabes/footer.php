@@ -147,7 +147,7 @@ $lang = pll_current_language();
             <a href="#" class="h6 link text-main">Factory</a>
           </li>
         </ul>
-        <div class="list-hor flex-wrap">
+        <!-- <div class="list-hor flex-wrap">
           <span class="h6">Payment:</span>
           <ul class="payment-method-list">
             <li><img src="images/payment/visa-2.svg" alt="Payment"></li>
@@ -156,8 +156,8 @@ $lang = pll_current_language();
             <li><img src="images/payment/discover-2.svg" alt="Payment"></li>
             <li><img src="images/payment/paypal-2.svg" alt="Payment"></li>
           </ul>
-        </div>
-        <div class="list-hor">
+        </div> -->
+        <!-- <div class="list-hor">
           <div class="tf-currencies">
             <select class="tf-dropdown-select style-default color-white-2 type-currencies">
               <option selected data-thumbnail="images/country/us.png">USD</option>
@@ -173,7 +173,7 @@ $lang = pll_current_language();
               <option>اردو</option>
             </select>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -363,7 +363,7 @@ $lang = pll_current_language();
 <!-- /Compare -->
 
 <!-- Quick View -->
-<div class="modal modalCentered fade modal-quick-view" id="quickView">
+<!-- <div class="modal modalCentered fade modal-quick-view" id="quickView">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content align-items-md-center">
       <i class="icon icon-close icon-close-popup" data-bs-dismiss="modal"></i>
@@ -517,7 +517,7 @@ $lang = pll_current_language();
       </div>
     </div>
   </div>
-</div>
+</div> -->
 <!-- /Quick View -->
 
 <!-- Shopping Cart -->

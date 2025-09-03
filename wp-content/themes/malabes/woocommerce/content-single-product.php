@@ -407,7 +407,6 @@ function display_related_products($product)
     return $output;
 }
 
-
 ?>
 
 <div class="woocommerce-notices-wrapper">
@@ -533,24 +532,7 @@ if ( post_password_required() ) {
                         </div>
 
                         <div class="tf-product-variant mt-4">
-
-                            <!-- echo variations -->
-                            <?php
-
-                            $variations = $product->get_available_variations();
-                            foreach ($variations as $variation) {
-                                $variation_id   = $variation['variation_id'];
-                                $display_price  = $variation['display_price']; // السعر الحالي
-                                $regular_price  = $variation['display_regular_price']; // السعر قبل الخصم
-                                $attributes     = $variation['attributes']; // القيم المختارة زي اللون/المقاس
-
-                                echo $display_price;
-                            }
-
-                            ?>
-
-                            <div class="js-variation-price"></div>
-
+                            <?php //echo do_shortcode('[dynamic_product_variations]'); ?>
 
                             <?php
                             /**
@@ -745,9 +727,9 @@ if ( post_password_required() ) {
                                         <tr>
                                             <th scope="row"><?php echo $color_name; ?></th>
                                             <td>
-                                                <p
+                                                <div
                                                     style="background-color: <?php echo esc_attr($color_code); ?>; color: <?php echo esc_attr($color_code); ?>;width: 30px;height:30px;border-radius: 50%; ">
-                                                </p>
+                                                </div>
                                             </td>
                                         </tr>
                                         <?php
@@ -779,6 +761,9 @@ if ( post_password_required() ) {
     <?php //endif; ?>
 
     <!-- /Product Description -->
+
+    <!-- Related Products -->
+    <?php echo display_related_products($product); ?>
 
     <!-- Box Icon -->
     <section class="mt-5">
@@ -849,11 +834,8 @@ if ( post_password_required() ) {
     </section>
     <!-- /Box Icon -->
 
-    <!-- Related Products -->
-    <?php echo display_related_products($product); ?>
-
     <!-- Sticky Add to Cart -->
-    <div class="tf-sticky-btn-atc">
+    <div class="tf-sticky-btn-atc d-none">
         <div class="container">
             <div class="tf-height-observer w-100 d-flex align-items-center">
                 <div class="tf-sticky-atc-product d-flex align-items-center">

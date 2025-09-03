@@ -22,12 +22,13 @@ $sections = [
   'hero'           => 'hero_section',
   'shaping_pha'    => 'shaping_pha',
   'category'       => 'category_section',
-  'products_ran'   => 'products_ran',
+  // 'products_ran'   => 'products_ran',
   // 'custom_ord'     => 'custom_section',
-  'boxy'           => 'boxy_section',
-  'flash'          => 'flash_section',
+  // 'boxy'           => 'boxy_section',
+  // 'flash'          => 'flash_section',
   'deal'           => 'deal_section',
-  'banner_sec'     => 'banner_sec',
+  'customer_rev'=> 'customer_rev',
+  // 'banner_sec'     => 'banner_sec',
   'blog-sec'       => 'blog_section',
 ];
 

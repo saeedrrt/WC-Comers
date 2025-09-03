@@ -2,7 +2,7 @@
 $lango = pll_current_language();
 ?>
 
-<section>
+<section class="flat-spacing">
     <div class="container">
         <div class="sect-title type-3 type-2 wow fadeInUp">
             <h2 class="s-title type-semibold text-nowrap"><?php echo $lango == 'ar' ? 'المقالات' : 'Blog'; ?></h2>
@@ -58,75 +58,3 @@ $lango = pll_current_language();
         </div>
     </div>
 </section>
-
-<div class="flat-spacing">
-    <div class="container">
-        <div dir="<?php echo is_rtl() ? 'rtl' : 'ltr'; ?>" class="swiper tf-swiper swiper-initialized swiper-horizontal swiper-backface-hidden"
-            data-preview="4" data-tablet="3" data-mobile-sm="2" data-mobile="1" data-space-lg="97" data-space-md="33"
-            data-space="13" data-pagination="1" data-pagination-sm="2" data-pagination-md="3" data-pagination-lg="4">
-            <div class="swiper-wrapper" id="swiper-wrapper-1228626932f8a81b" aria-live="polite">
-                <!-- item 1 -->
-                <div class="swiper-slide swiper-slide-active" role="group" aria-label="1 / 4"
-                    style="width: 287.25px; margin-right: 97px;">
-                    <div class="box-icon_V01 wow fadeInLeft animated"
-                        style="visibility: visible; animation-name: fadeInLeft;">
-                        <span class="icon">
-                            <i class="icon-package"></i>
-                        </span>
-                        <div class="content">
-                            <h4 class="title fw-normal"><?php echo $lango == 'ar' ? '30 يوماً' : '30 days'; ?> </h4>
-                            <p class="text"><?php echo $lango == 'ar' ? 'ضمان استرداد المال' : 'Money back guarantee'; ?></p>
-                        </div>
-                    </div>
-                </div>
-                <!-- item 2 -->
-                <div class="swiper-slide swiper-slide-next" role="group" aria-label="2 / 4"
-                    style="width: 287.25px; margin-right: 97px;">
-
-                    <div class="box-icon_V01 wow fadeInLeft animated" data-wow-delay="0.1s"
-                        style="visibility: visible; animation-delay: 0.1s; animation-name: fadeInLeft;">
-                        <span class="icon">
-                            <i class="icon-calender"></i>
-                        </span>
-                        <div class="content">
-                            <h4 class="title fw-normal"><?php echo $lango == 'ar' ? '3 سنوات' : '3 year warranty'; ?></h4>
-                            <p class="text"><?php echo $lango == 'ar' ? 'ضمان العيوب' : 'Manufacturer\'s defect'; ?></p>
-                        </div>
-                    </div>
-                </div>
-                <!-- item 3 -->
-                <div class="swiper-slide" role="group" aria-label="3 / 4" style="width: 287.25px; margin-right: 97px;">
-
-                    <div class="box-icon_V01 wow fadeInLeft animated" data-wow-delay="0.2s"
-                        style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInLeft;">
-                        <span class="icon">
-                            <i class="icon-boat"></i>
-                        </span>
-                        <div class="content">
-                            <h4 class="title fw-normal"><?php echo $lango == 'ar' ? 'شحن مجاني' : 'Free shipping'; ?></h4>
-                            <p class="text"><?php echo $lango == 'ar' ? 'شحن مجاني' : 'Free Shipping for orders over $150'; ?></p>
-                        </div>
-                    </div>
-                </div>
-                <!-- item 4 -->
-                <div class="swiper-slide" role="group" aria-label="4 / 4" style="width: 287.25px; margin-right: 97px;">
-                    <div class="box-icon_V01 wow fadeInLeft animated" data-wow-delay="0.3s"
-                        style="visibility: visible; animation-delay: 0.3s; animation-name: fadeInLeft;">
-                        <span class="icon">
-                            <i class="icon-headset"></i>
-                        </span>
-                        <div class="content">
-                            <h4 class="title fw-normal"><?php echo $lango == 'ar' ? 'دعم اونلاين' : 'Online support'; ?></h4>
-                            <p class="text"><?php echo $lango == 'ar' ? '24 ساعة في اليوم، 7 أيام في الأسبوع' : '24 hours a day, 7 days a week'; ?></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div
-                class="sw-dot-default tf-sw-pagination swiper-pagination-clickable swiper-pagination-bullets swiper-pagination-horizontal swiper-pagination-lock">
-                <span class="swiper-pagination-bullet swiper-pagination-bullet-active" tabindex="0" role="button"
-                    aria-label="Go to slide 1" aria-current="true"></span></div>
-            <span class="swiper-notification" aria-live="assertive" aria-atomic="true"></span>
-        </div>
-    </div>
-</div>

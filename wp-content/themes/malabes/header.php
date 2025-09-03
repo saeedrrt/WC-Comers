@@ -19,8 +19,7 @@ $lango = pll_current_language();
   <title><?php echo get_bloginfo('name'); ?></title>
   <meta name="author" content="themesflat.com">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description"
-    content="Themesflat Ochaka - A modern and elegant Multipurpose eCommerce HTML Template, perfect for online stores selling rings, necklaces, watches, and other accessories. SEO-optimized, fast-loading, and fully customizable.">
+  <meta name="description" content="<?php echo get_bloginfo('description'); ?>">
 
   <!-- font -->
   <link rel="stylesheet" href="<?= get_template_directory_uri(); ?>/assets/fonts/fonts.css">

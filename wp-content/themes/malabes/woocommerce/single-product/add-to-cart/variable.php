@@ -36,7 +36,7 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 			<tbody>
 				<?php foreach ( $attributes as $attribute_name => $options ) : ?>
 					<tr>
-						<th class="label"><label for="<?php echo esc_attr( sanitize_title( $attribute_name ) ); ?>"><?php echo wc_attribute_label( $attribute_name ); // WPCS: XSS ok. ?></label></th>
+						<th class="label d-none"><label for="<?php echo esc_attr( sanitize_title( $attribute_name ) ); ?>"><?php echo wc_attribute_label( $attribute_name ); // WPCS: XSS ok. ?></label></th>
 						<td class="value tf-grid-layout md-col-12">
 							<?php
 								// wc_dropdown_variation_attribute_options(
@@ -47,14 +47,14 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 								// 	)
 								// );
 					
-							wc_dropdown_variation_attribute_options(array(
-								'options' => $options,
-								'attribute' => $attribute_name,
-								'product' => $product,
-								'show_option_none' => wc_attribute_label($attribute_name), // نص افتراضي
-								'class' => 'wc-variation-select form-select',     // ستايلك
-								'id' => 'select-' . sanitize_title($attribute_name), // ID ثابت مفيد للـ JS
-							));
+							// wc_dropdown_variation_attribute_options(array(
+							// 	'options' => $options,
+							// 	'attribute' => $attribute_name,
+							// 	'product' => $product,
+							// 	'show_option_none' => wc_attribute_label($attribute_name), // نص افتراضي
+							// 	'class' => 'mt-5 wc-variation-select form-select',     // ستايلك
+							// 	'id' => 'select-' . sanitize_title($attribute_name), // ID ثابت مفيد للـ JS
+							// ));
 
 								
 								/**
@@ -67,6 +67,103 @@ do_action( 'woocommerce_before_add_to_cart_form' ); ?>
 								//echo end( $attribute_keys ) === $attribute_name ? wp_kses_post( apply_filters( 'woocommerce_reset_variations_link', '<a class="reset_variations" href="#" aria-label="' . esc_attr__( 'Clear options', 'woocommerce' ) . '">' . esc_html__( 'Clear', 'woocommerce' ) . '</a>' ) ) : '';
 							?>
 
+							<?php
+								foreach ($attributes as $attribute_name => $options):
+									$selected = isset($_REQUEST['attribute_' . sanitize_title($attribute_name)]) ?
+										wc_clean(stripslashes(urldecode($_REQUEST['attribute_' . sanitize_title($attribute_name)]))) :
+										$product->get_variation_default_attribute($attribute_name);
+									?>
+								<div class="wc-variation-boxes mt-5" id="select-<?php echo esc_attr(sanitize_title($attribute_name)); ?>">
+									<label class="variation-label"><?php echo esc_html(wc_attribute_label($attribute_name)); ?></label>
+									<div class="variation-boxes"
+										data-attribute_name="attribute_<?php echo esc_attr(sanitize_title($attribute_name)); ?>">
+										<?php foreach ($options as $option): ?>
+											<?php
+											$is_selected = (sanitize_title($option) === sanitize_title($selected)) ? 'selected' : '';
+											?>
+											<div class="variation-box <?php echo $is_selected; ?>" data-value="<?php echo esc_attr($option); ?>">
+												<?php echo esc_html(apply_filters('woocommerce_variation_option_name', $option)); ?>
+											</div>
+										<?php endforeach; ?>
+									</div>
+									<?php
+									// الاحتفاظ بـ <select> الأصلي (مخفي)
+									wc_dropdown_variation_attribute_options(array(
+										'options' => $options,
+										'attribute' => $attribute_name,
+										'product' => $product,
+										'selected' => $selected,
+										'show_option_none' => wc_attribute_label($attribute_name),
+										'class' => 'mt-5 wc-variation-select form-select hidden', // إضافة كلاس hidden
+										'id' => 'select-' . sanitize_title($attribute_name),
+									));
+									?>
+								</div>
+							<?php endforeach; ?>
+<style>
+	.wc-variation-boxes {
+    margin-top: 1.5rem;
+}
+.variation-label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+.variation-boxes {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.variation-box {
+    padding: 10px 20px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    transition: all 0.3s ease;
+    text-align: center;
+    min-width: 60px;
+}
+.variation-box:hover {
+    background-color: #e0e0e0;
+}
+.variation-box.selected {
+    background-color: #007cba;
+    color: #fff;
+    border-color: #007cba;
+}
+.wc-variation-select.hidden {
+    display: none !important;
+}
+</style>
+
+<script>
+	jQuery(document).ready(function($) {
+    jQuery('.variation-box').on('click', function() {
+        var $this = $(this);
+        var $parent = $this.closest('.variation-boxes');
+        var attribute_name = $parent.data('attribute_name');
+        var value = $this.data('value');
+
+        // إزالة الكلاس selected من الخيارات الأخرى
+        $parent.find('.variation-box').removeClass('selected');
+        // إضافة الكلاس selected للخيار المضغوط
+        $this.addClass('selected');
+
+        // تحديث قيمة <select> المخفي
+        var $select = $parent.siblings('.wc-variation-select');
+        $select.val(value).trigger('change');
+
+        // إطلاق حدث تحديث التباينات
+        jQuery('form.variations_form').trigger('check_variations');
+    });
+
+    // تحديث التباينات عند تحميل الصفحة
+    jQuery('form.variations_form').on('wc_variation_form', function() {
+        jQuery(this).trigger('check_variations');
+    });
+});
+</script>
 							
 						</td>
 					</tr>

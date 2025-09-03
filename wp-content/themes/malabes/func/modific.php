@@ -51,90 +51,264 @@ JS
     }
 });
 
-add_action('wp_ajax_get_varch_by_price', 'get_varch_by_price');
-add_action('wp_ajax_nopriv_get_varch_by_price', 'get_varch_by_price');
 
-function get_varch_by_price()
-{
-    // (اختياري) تأمين نونس إن حبيت
-    // if ( ! isset($_POST['nonce']) || ! wp_verify_nonce($_POST['nonce'], 'variation_nonce') ) {
-    //     wp_send_json_error(['message' => 'Bad nonce'], 400);
-    // }
+// 1. إنشاء shortcode لعرض المنتج مع الـ variations
+function dynamic_product_variations_shortcode($atts) {
+    $atts = shortcode_atts(array(
+        'product_id' => get_the_ID(),
+    ), $atts);
 
-    $variation_id = isset($_POST['price']) ? absint($_POST['price']) : 0;
+    $product_id = intval($atts['product_id']);
+    $product = wc_get_product($product_id);
 
-    if (!$variation_id) {
-        wp_send_json_error(['message' => 'Missing variation_id'], 400);
+    if (!$product || !$product->is_type('variable')) {
+        return 'المنتج غير موجود أو ليس variable product';
     }
 
-    $variation = wc_get_product($variation_id);
+    $variations = $product->get_available_variations();
+    $attributes = $product->get_variation_attributes();
 
-    if (!$variation || 'variation' !== $variation->get_type()) {
-        wp_send_json_error(['message' => 'Not a variation product'], 400);
-    }
+    ob_start();
+    ?>
+    <div class="dynamic-product-container" data-product-id="<?php echo $product_id; ?>">
+        
+        <?php foreach ($attributes as $attribute_name => $options) : ?>
+            <div class="variation-select-container">
+                <label for="<?php echo sanitize_title($attribute_name); ?>">
+                    <?php echo wc_attribute_label($attribute_name); ?>:
+                </label>
+                <select name="<?php echo $attribute_name; ?>" 
+                        class="variation-select" 
+                        data-attribute="<?php echo $attribute_name; ?>">
+                    <option value="">اختر <?php echo wc_attribute_label($attribute_name); ?></option>
+                    <?php foreach ($options as $option) : ?>
+                        <option value="<?php echo esc_attr($option); ?>">
+                            <?php echo esc_html($option); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        <?php endforeach; ?>
 
-    // اسم الفاريشن (بيطلع "اسم المنتج - اللون، المقاس" غالباً)
-    $variation_name = $variation->get_name();
+        <div class="price-display">
+            <span class="current-price">السعر: اختر المواصفات أولاً</span>
+        </div>
 
-    // لو عايز فورمات الخصائص فقط (Color: Blue, Size: L)
-    $formatted_attrs = wc_get_formatted_variation($variation->get_attributes(), true);
-
-    // السعر (رقم مع مراعاة ضريبة/عرض السعر حسب إعدادات المتجر)
-    $price_number = wc_get_price_to_display($variation); // float
-    // السعر HTML (يحترم سعر قبل/بعد الخصم)
-    $price_html = $variation->get_price_html();
-
-    wp_send_json_success([
-        'variation_id' => $variation_id,
-        'name' => $variation_name,     // مثال: "Product Name - Blue, L"
-        'attributes' => $formatted_attrs,    // مثال: "Color: Blue, Size: L"
-        'price' => $price_number,       // رقم صافي لعمليات حسابية
-        'price_html' => $price_html,         // HTML جاهز للعرض
-    ]);
-    
+        <div class="variation-data" style="display:none;">
+            <?php echo json_encode($variations); ?>
+        </div>
+    </div>
+    <?php
+    return ob_get_clean();
 }
+add_shortcode('dynamic_product_variations', 'dynamic_product_variations_shortcode');
 
-// AJAX endpoints
-add_action('wp_ajax_get_variation_price', 'my_get_variation_price');
-add_action('wp_ajax_nopriv_get_variation_price', 'my_get_variation_price');
+// 2. AJAX handler للحصول على سعر الـ variation
+function get_variation_price_ajax() {
+    if (!wp_verify_nonce($_POST['nonce'], 'variation_price_nonce')) {
+        wp_die('Security check failed');
+    }
 
-function my_get_variation_price() {
-    // يفضّل استخدام نونس للحماية لو هتعمل enqueue/locaize
-    // check_ajax_referer('var_price_nonce', 'nonce');
+    $product_id = intval($_POST['product_id']);
+    $attributes = $_POST['attributes'];
 
-    $variation_id = isset($_POST['variation_id']) ? absint($_POST['variation_id']) : 0;
-    $product_id   = isset($_POST['product_id']) ? absint($_POST['product_id']) : 0;
-    $attributes   = isset($_POST['attributes']) && is_array($_POST['attributes']) ? array_map('wc_clean', $_POST['attributes']) : [];
+    $product = wc_get_product($product_id);
+    
+    if (!$product) {
+        wp_send_json_error('المنتج غير موجود');
+    }
 
-    // لو variation_id مش مبعوت، حاول نطلعه من attributes
-    if (!$variation_id && $product_id && !empty($attributes)) {
-        $product = wc_get_product($product_id);
-        if ($product && $product->is_type('variable')) {
-            $data_store   = WC_Data_Store::load('product');
-            $variation_id = $data_store->find_matching_product_variation($product, $attributes);
+    $variations = $product->get_available_variations();
+    $matching_variation = null;
+
+    // البحث عن الـ variation المطابق
+    foreach ($variations as $variation) {
+        $match = true;
+        foreach ($attributes as $attr_name => $attr_value) {
+            $variation_attr_key = 'attribute_' . sanitize_title($attr_name);
+            if (!isset($variation['attributes'][$variation_attr_key]) || 
+                $variation['attributes'][$variation_attr_key] !== $attr_value) {
+                $match = false;
+                break;
+            }
+        }
+        if ($match) {
+            $matching_variation = $variation;
+            break;
         }
     }
 
-    if (!$variation_id) {
-        wp_send_json_error(['message' => 'Variation not found'], 404);
+    if ($matching_variation) {
+        $variation_product = wc_get_product($matching_variation['variation_id']);
+        $price = $variation_product->get_price();
+        $formatted_price = wc_price($price);
+        
+        wp_send_json_success(array(
+            'price' => $formatted_price,
+            'raw_price' => $price,
+            'variation_id' => $matching_variation['variation_id']
+        ));
+    } else {
+        wp_send_json_error('لم يتم العثور على variation مطابق');
     }
-
-    $variation = wc_get_product($variation_id);
-    if (!$variation || 'variation' !== $variation->get_type()) {
-        wp_send_json_error(['message' => 'Invalid variation'], 400);
-    }
-
-    $price_html    = $variation->get_price_html();               // HTML جاهز
-    $display_price = wc_get_price_to_display($variation);        // رقم صافي
-    $regular_price = (float) $variation->get_regular_price();    // الرقم قبل الخصم (لو محتاجه)
-
-    wp_send_json_success([
-        'variation_id'  => $variation_id,
-        'price_html'    => $price_html,
-        'display_price' => $display_price,
-        'regular_price' => $regular_price,
-    ]);
 }
+add_action('wp_ajax_get_variation_price', 'get_variation_price_ajax');
+add_action('wp_ajax_nopriv_get_variation_price', 'get_variation_price_ajax');
+
+// 3. تحميل الـ JavaScript والـ CSS
+function enqueue_variation_scripts() {
+    wp_enqueue_script('jquery');
+    wp_enqueue_script('variation-price-ajax', get_template_directory_uri() . '/js/variation-price.js', array('jquery'), '1.0.0', true);
+    
+    wp_localize_script('variation-price-ajax', 'variation_ajax', array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('variation_price_nonce')
+    ));
+}
+add_action('wp_enqueue_scripts', 'enqueue_variation_scripts');
+
+// 4. طريقة بديلة لعرض جميع المنتجات الـ variable في الموقع
+function display_all_variable_products() {
+    $args = array(
+        'post_type' => 'product',
+        'posts_per_page' => -1,
+        'meta_query' => array(
+            array(
+                'key' => '_product_attributes',
+                'compare' => 'EXISTS'
+            )
+        )
+    );
+
+    $products = get_posts($args);
+    
+    foreach ($products as $product_post) {
+        $product = wc_get_product($product_post->ID);
+        if ($product && $product->is_type('variable')) {
+            echo do_shortcode('[dynamic_product_variations product_id="' . $product_post->ID . '"]');
+            echo '<hr>';
+        }
+    }
+}
+
+// 5. دالة للحصول على جميع الـ variations مع أسعارها
+function get_product_variations_with_prices($product_id) {
+    $product = wc_get_product($product_id);
+    
+    if (!$product || !$product->is_type('variable')) {
+        return false;
+    }
+    
+    $variations = $product->get_available_variations();
+    $variations_data = array();
+    
+    foreach ($variations as $variation) {
+        $variation_product = wc_get_product($variation['variation_id']);
+        $attributes_string = '';
+        
+        foreach ($variation['attributes'] as $attr_name => $attr_value) {
+            $clean_name = str_replace('attribute_', '', $attr_name);
+            $attributes_string .= $clean_name . ': ' . $attr_value . ' ';
+        }
+        
+        $variations_data[] = array(
+            'variation_id' => $variation['variation_id'],
+            'attributes' => $variation['attributes'],
+            'attributes_display' => trim($attributes_string),
+            'price' => $variation_product->get_price(),
+            'formatted_price' => wc_price($variation_product->get_price()),
+            'stock_status' => $variation_product->get_stock_status()
+        );
+    }
+    
+    return $variations_data;
+}
+
+
+// add_action('wp_ajax_get_varch_by_price', 'get_varch_by_price');
+// add_action('wp_ajax_nopriv_get_varch_by_price', 'get_varch_by_price');
+
+// function get_varch_by_price()
+// {
+//     // (اختياري) تأمين نونس إن حبيت
+//     // if ( ! isset($_POST['nonce']) || ! wp_verify_nonce($_POST['nonce'], 'variation_nonce') ) {
+//     //     wp_send_json_error(['message' => 'Bad nonce'], 400);
+//     // }
+
+//     $variation_id = isset($_POST['price']) ? absint($_POST['price']) : 0;
+
+//     if (!$variation_id) {
+//         wp_send_json_error(['message' => 'Missing variation_id'], 400);
+//     }
+
+//     $variation = wc_get_product($variation_id);
+
+//     if (!$variation || 'variation' !== $variation->get_type()) {
+//         wp_send_json_error(['message' => 'Not a variation product'], 400);
+//     }
+
+//     // اسم الفاريشن (بيطلع "اسم المنتج - اللون، المقاس" غالباً)
+//     $variation_name = $variation->get_name();
+
+//     // لو عايز فورمات الخصائص فقط (Color: Blue, Size: L)
+//     $formatted_attrs = wc_get_formatted_variation($variation->get_attributes(), true);
+
+//     // السعر (رقم مع مراعاة ضريبة/عرض السعر حسب إعدادات المتجر)
+//     $price_number = wc_get_price_to_display($variation); // float
+//     // السعر HTML (يحترم سعر قبل/بعد الخصم)
+//     $price_html = $variation->get_price_html();
+
+//     wp_send_json_success([
+//         'variation_id' => $variation_id,
+//         'name' => $variation_name,     // مثال: "Product Name - Blue, L"
+//         'attributes' => $formatted_attrs,    // مثال: "Color: Blue, Size: L"
+//         'price' => $price_number,       // رقم صافي لعمليات حسابية
+//         'price_html' => $price_html,         // HTML جاهز للعرض
+//     ]);
+    
+// }
+
+// // AJAX endpoints
+// add_action('wp_ajax_get_variation_price', 'my_get_variation_price');
+// add_action('wp_ajax_nopriv_get_variation_price', 'my_get_variation_price');
+
+// function my_get_variation_price() {
+//     // يفضّل استخدام نونس للحماية لو هتعمل enqueue/locaize
+//     // check_ajax_referer('var_price_nonce', 'nonce');
+
+//     $variation_id = isset($_POST['variation_id']) ? absint($_POST['variation_id']) : 0;
+//     $product_id   = isset($_POST['product_id']) ? absint($_POST['product_id']) : 0;
+//     $attributes   = isset($_POST['attributes']) && is_array($_POST['attributes']) ? array_map('wc_clean', $_POST['attributes']) : [];
+
+//     // لو variation_id مش مبعوت، حاول نطلعه من attributes
+//     if (!$variation_id && $product_id && !empty($attributes)) {
+//         $product = wc_get_product($product_id);
+//         if ($product && $product->is_type('variable')) {
+//             $data_store   = WC_Data_Store::load('product');
+//             $variation_id = $data_store->find_matching_product_variation($product, $attributes);
+//         }
+//     }
+
+//     if (!$variation_id) {
+//         wp_send_json_error(['message' => 'Variation not found'], 404);
+//     }
+
+//     $variation = wc_get_product($variation_id);
+//     if (!$variation || 'variation' !== $variation->get_type()) {
+//         wp_send_json_error(['message' => 'Invalid variation'], 400);
+//     }
+
+//     $price_html    = $variation->get_price_html();               // HTML جاهز
+//     $display_price = wc_get_price_to_display($variation);        // رقم صافي
+//     $regular_price = (float) $variation->get_regular_price();    // الرقم قبل الخصم (لو محتاجه)
+
+//     wp_send_json_success([
+//         'variation_id'  => $variation_id,
+//         'price_html'    => $price_html,
+//         'display_price' => $display_price,
+//         'regular_price' => $regular_price,
+//     ]);
+// }
 
 
 
